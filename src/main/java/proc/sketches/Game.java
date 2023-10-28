@@ -3,6 +3,7 @@ package proc.sketches;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Game extends PApplet {
     public static final int dimX = 800;
@@ -11,6 +12,7 @@ public class Game extends PApplet {
     ArrayList<Tank> tanks = new ArrayList<>();
     ArrayList<Bullet> bullets = new ArrayList<>();
     ArrayList<Bullet> deadBullets = new ArrayList<>();
+    HashSet<Object> activeKeys = new HashSet<>();
     Wall[] walls = {new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
@@ -88,6 +90,10 @@ public class Game extends PApplet {
 
 
     public void keyPressed() {
+        if (key == CODED) {
+            activeKeys.add(keyCode);
+        }
+        activeKeys.add(key);
         switch (key) {
             case 'w':
                 tanks.get(0).forward();
@@ -103,8 +109,10 @@ public class Game extends PApplet {
                 break;
             case 'q':
                 bullets.add(tanks.get(0).fireBullet());
+                break;
             case ENTER:
                 bullets.add(tanks.get(1).fireBullet());
+                break;
             case CODED:
                 switch (keyCode) {
                     case UP:
@@ -121,38 +129,49 @@ public class Game extends PApplet {
                         break;
                 }
                 break;
-
         }
     }
 
     public void keyReleased() {
-
+        activeKeys.remove(key);
+        activeKeys.remove(keyCode);
+        if (key == CODED) {
+            System.out.println(activeKeys);
+        }
         switch (key) {
             case 'w':
-                tanks.get(0).stop();
-                break;
-            case 'a':
-                tanks.get(0).angleStop();
+                if (!activeKeys.contains('s'))
+                    tanks.get(0).stop();
                 break;
             case 's':
-                tanks.get(0).stop();
+                if (!activeKeys.contains('w'))
+                    tanks.get(0).stop();
+                break;
+            case 'a':
+                if (!activeKeys.contains('d'))
+                    tanks.get(0).angleStop();
                 break;
             case 'd':
-                tanks.get(0).angleStop();
+                if (!activeKeys.contains('a'))
+                    tanks.get(0).angleStop();
                 break;
             case CODED:
                 switch (keyCode) {
                     case UP:
-                        tanks.get(1).stop();
-                        break;
-                    case LEFT:
-                        tanks.get(1).angleStop();
+                        if (!activeKeys.contains(40))
+                            tanks.get(1).stop();
                         break;
                     case DOWN:
-                        tanks.get(1).stop();
+                        if (!activeKeys.contains(38))
+                            tanks.get(1).stop();
+                        break;
+                    case LEFT:
+                        if (!activeKeys.contains(39))
+                            tanks.get(1).angleStop();
                         break;
                     case RIGHT:
-                        tanks.get(1).angleStop();
+                        if (!activeKeys.contains(37))
+                            tanks.get(1).angleStop();
                         break;
                 }
                 break;
