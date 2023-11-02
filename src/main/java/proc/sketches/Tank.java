@@ -1,22 +1,32 @@
 package proc.sketches;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
 
-public class Tank extends PApplet {
+public class Tank {
+
     private float posX;
+
     private float posY;
+
     private float angle;
     private int[] color;
+
+
     private float velocity;
+
     private float angularVelocity;
-    public static float DEFAULT_LINEAR_VELOCITY = 4;
-    public static float DEFAULT_ANGULAR_VELOCITY = 0.1f;
-    public static float BARREL_SIZE = 105;
-    public static float TANK_SIZE = 85;
-    public final float SPAWN_LOCATION_X;
-    public final float SPAWN_LOCATION_Y;
+    public transient static float DEFAULT_LINEAR_VELOCITY = 4;
+    public transient static float DEFAULT_ANGULAR_VELOCITY = 0.1f;
+    public transient static float BARREL_SIZE = 105;
+    public transient static float TANK_SIZE = 85;
+    public transient static int BULLET_TIMEOUT = 12;
+    public transient int currentBulletTimeout = 0;
+    public transient final float SPAWN_LOCATION_X;
+    public transient final float SPAWN_LOCATION_Y;
 
     public Tank(float posX, float posY, float angle, int[] color) {
         this.posX = posX;
@@ -75,14 +85,20 @@ public class Tank extends PApplet {
             }
 
         }
-
         // Update the angle based on angular velocity
         this.angle += this.angularVelocity * timeDelta;
+        currentBulletTimeout -= 1;
     }
 
 
     public Bullet fireBullet() {
-        return new Bullet(this.posX + (float) (TANK_SIZE * Math.cos(angle)) + velocity, this.posY + (float) (TANK_SIZE * Math.sin(angle)) + velocity, this.angle, this);
+        Bullet b = new Bullet(this.posX, this.posY, this.angle, this);
+        if (currentBulletTimeout > 0) {
+            b.setCurrentLife(Bullet.MAX_LIFE);
+            return b;
+        }
+        currentBulletTimeout = BULLET_TIMEOUT;
+        return b;
     }
 
     public float getPosX() {
@@ -163,6 +179,9 @@ public class Tank extends PApplet {
 
     public Bullet collideWithBullets(ArrayList<Bullet> bullets) {
         for (Bullet b : bullets) {
+            if (b.owner == this && b.getCurrentLife() < Bullet.GRACE_PERIOD) {
+                continue;
+            }
             if ((posX - b.getPosX()) * (posX - b.getPosX()) + (posY - b.getPosY()) * (posY - b.getPosY()) <= Tank.TANK_SIZE * Tank.TANK_SIZE / 4) {
                 return b;
             }

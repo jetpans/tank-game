@@ -4,11 +4,11 @@ package proc.sketches;
 public class Bullet {
     private float posX;
     private float posY;
-    public static final int MAX_LIFE = 300;
-    private int currentLife = 0;
-    public static float VELOCITY = 10;
-    public static float SIZE = 10;
-    private float angle;
+    public transient static final int MAX_LIFE = 300;
+    public transient static final int GRACE_PERIOD = 30;
+    private transient int currentLife = 0;
+    public transient static float VELOCITY = 10;
+    public transient static float SIZE = 10;
     private float velY;
     private float velX;
 
@@ -67,12 +67,16 @@ public class Bullet {
         return posY;
     }
 
-    public float getAngle() {
-        return angle;
-    }
-
     public Tank getOwner() {
         return owner;
+    }
+
+    public int getCurrentLife() {
+        return currentLife;
+    }
+
+    public void setCurrentLife(int currentLife) {
+        this.currentLife = currentLife;
     }
 
     public boolean shouldIDie() {
