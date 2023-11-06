@@ -1,18 +1,27 @@
 package proc.sketches;
 
+import AiPlayer.AiOutput;
+import AiPlayer.GameState;
+import AiPlayer.PlayerAi;
 import processing.core.PApplet;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.awt.*;
+
+import java.io.*;
+import java.net.*;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Game extends PApplet {
     public static final int dimX = 800;
     public static final int dimY = 800;
-    public static boolean isKeyPressed = false;
     ArrayList<Tank> tanks = new ArrayList<>();
     ArrayList<Bullet> bullets = new ArrayList<>();
     ArrayList<Bullet> deadBullets = new ArrayList<>();
+    ArrayList<Bullet> newBullets = new ArrayList<>();
     HashSet<Object> activeKeys = new HashSet<>();
+
     Wall[] walls = {new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
@@ -22,6 +31,37 @@ public class Game extends PApplet {
     Level myLevel = new Level(walls);
 
     public void settings() {
+        Thread playerOneThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    playerAi(null,1);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (AWTException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        playerOneThread.start();
+        Thread playerTwoThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    playerAi(null,0);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (AWTException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        playerTwoThread.start();
+
         size(dimX, dimY);
         int[] redColor = {160, 20, 10};
         int[] blueColor = {5, 5, 120};
@@ -31,6 +71,19 @@ public class Game extends PApplet {
 
     public void draw() {
         background(255, 255, 255);
+        for (Bullet b : bullets) {
+            if (b.shouldIDie()) {
+                deadBullets.add(b);
+                continue;
+
+            }
+            b.update(1, myLevel);
+            showBullet(b);
+        }
+        for (Bullet i : deadBullets) {
+            bullets.remove(i);
+        }
+        deadBullets.clear();
         for (Tank tank : tanks) {
             Bullet res = tank.collideWithBullets(bullets);
             if (res != null) {
@@ -41,22 +94,15 @@ public class Game extends PApplet {
             showTank(tank);
         }
 
-        for (Bullet bullet : bullets) {
-            if (bullet.shouldIDie()) {
-                deadBullets.add(bullet);
-            }
-            bullet.update(1, myLevel);
-            showBullet(bullet);
-        }
-        for (Bullet i : deadBullets) {
-            bullets.remove(i);
-        }
-        deadBullets.clear();
         for (Wall w : myLevel.getWalls()) {
             showWall(w);
         }
-    }
+        if (newBullets.size() != 0) {
+            bullets.addAll(newBullets);
+            newBullets.clear();
+        }
 
+    }
 
     public void showTank(Tank t) {
         rectMode(CENTER);
@@ -180,5 +226,99 @@ public class Game extends PApplet {
 
     public static void main(String... args) {
         PApplet.main("proc.sketches.Game");
+    }
+
+    void serverCommunicationLoop() throws IOException, AWTException, InterruptedException {
+        Socket clientSocket = new Socket("127.0.0.1", 12345);
+        System.out.println("Connected to " + clientSocket.getRemoteSocketAddress());
+
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in));
+
+        String userInput;
+
+        while (true) {
+            String response = in.readLine();
+            if (response == null) {
+                continue;
+            }
+            String[] params = response.split(",");
+            if (params.length == 2) {
+                String action = params[0];
+                Integer tankId = Integer.parseInt(params[1]);
+                switch (action) {
+                    case "FIRE":
+                        newBullets.add(tanks.get(tankId).fireBullet());
+                        break;
+                    case "FORWARD":
+                        tanks.get(tankId).forward();
+                        break;
+                    case "BACKWARD":
+                        tanks.get(tankId).backward();
+                        break;
+                    case "RIGHT":
+                        tanks.get(tankId).right();
+                        break;
+                    case "LEFT":
+                        tanks.get(tankId).left();
+                        break;
+                    case "STOP_LINEAR":
+                        tanks.get(tankId).stop();
+                        break;
+                    case "STOP_ANGULAR":
+                        tanks.get(tankId).angleStop();
+                        break;
+                    case "GET_STATE":
+                        System.out.println("I WAS ASKED FOR STATE");
+                        //out.println(getStateString());
+                        break;
+                }
+                System.out.println(action);
+            }
+
+        }
+    }
+
+    GameState getCurrentGameState(Integer tankId) {
+        /*
+        TODO: Generate Current game state for input in AI
+         */
+        return new GameState();
+    }
+    void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
+        PlayerAi player = PlayerAi.loadFromFile(playerBrain);
+        while (true) {
+            System.out.println("decision on player:" + tankId);
+            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
+            switch (action.getFireDecision()) {
+                case "FIRE":
+                    newBullets.add(tanks.get(tankId).fireBullet());
+                    break;
+            }
+            switch (action.getLinearDecision()) {
+                case "FORWARD":
+                    tanks.get(tankId).forward();
+                    break;
+                case "BACKWARD":
+                    tanks.get(tankId).backward();
+                    break;
+                case "STOP_LINEAR":
+                    tanks.get(tankId).stop();
+                    break;
+            }
+            switch (action.getAngularDecision()) {
+                case "RIGHT":
+                    tanks.get(tankId).right();
+                    break;
+                case "LEFT":
+                    tanks.get(tankId).left();
+                    break;
+                case "STOP_ANGULAR":
+                    tanks.get(tankId).angleStop();
+                    break;
+            }
+        }
     }
 }
