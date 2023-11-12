@@ -1,7 +1,7 @@
 package proc.sketches;
 
 public class Level {
-    private final Wall[] walls;
+    private Wall[] walls;
 
     public Level(Wall[] walls) {
         this.walls = walls;
@@ -10,5 +10,8 @@ public class Level {
 
     public Wall[] getWalls() {
         return walls;
+    }
+    public void setWalls(Wall[] walls) {
+        this.walls = walls;
     }
 }

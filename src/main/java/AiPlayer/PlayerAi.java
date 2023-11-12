@@ -1,5 +1,7 @@
 package AiPlayer;
 
+import proc.sketches.Game;
+
 import java.nio.file.Path;
 
 public class PlayerAi {
@@ -17,7 +19,7 @@ public class PlayerAi {
     }
 
 
-    public AiOutput makeDecisionBasedOnGameState(GameState currentGameState) {
+    public AiOutput makeDecisionBasedOnGameState(GameState currentGameState, Game game) {
         /*
         TODO if else -->> based on type of brain make decision
          */

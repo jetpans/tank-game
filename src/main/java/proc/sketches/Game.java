@@ -3,32 +3,49 @@ package proc.sketches;
 import AiPlayer.AiOutput;
 import AiPlayer.GameState;
 import AiPlayer.PlayerAi;
+import org.locationtech.jts.algorithm.LineIntersector;
+import org.locationtech.jts.algorithm.RobustLineIntersector;
+import org.locationtech.jts.geom.Coordinate;
 import processing.core.PApplet;
 
 import java.awt.*;
-
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 public class Game extends PApplet {
-    public static final int dimX = 800;
-    public static final int dimY = 800;
-    ArrayList<Tank> tanks = new ArrayList<>();
-    ArrayList<Bullet> bullets = new ArrayList<>();
-    ArrayList<Bullet> deadBullets = new ArrayList<>();
-    ArrayList<Bullet> newBullets = new ArrayList<>();
-    HashSet<Object> activeKeys = new HashSet<>();
+    public static final int dimX = 1000;
+    public static final int dimY = 1000;
+    static ArrayList<Tank> tanks = new ArrayList<>();
+    static ArrayList<Bullet> bullets = new ArrayList<>();
+    static ArrayList<Bullet> deadBullets = new ArrayList<>();
+    static ArrayList<Bullet> newBullets = new ArrayList<>();
+    static HashSet<Object> activeKeys = new HashSet<>();
 
-    Wall[] walls = {new Wall(5, 5, dimX - 5, 5),
+    static Wall[] walls = {
+            //Outer walls
+            new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
             new Wall(5, dimY - 5, dimX - 5, dimY - 5),
-            new Wall(dimX / 2, 150, dimX / 2, 650),
-            new Wall(150, dimY / 2, 650, dimY / 2)};
-    Level myLevel = new Level(walls);
+            //Obstacles
+            new Wall(dimX / 2, dimY/4, dimX / 2, 3*dimY/8),
+            new Wall(dimX / 2 +dimX/8, dimY/4, dimX / 2+dimX/8, 3*dimY/8),
+
+            new Wall(dimX/2,dimY/4,dimX/2+dimX/8,dimY/4),
+            new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8),
+            //testing
+            new Wall(dimX/2 +dimX/8,0,dimX/2+dimX/8,1000),
+            new Wall(dimX / 2, 1000,dimX / 2, 0)
+    };
+    static Level myLevel = new Level(walls);
 
     public void settings() {
         Thread playerOneThread = new Thread(new Runnable() {
@@ -138,6 +155,7 @@ public class Game extends PApplet {
     public void keyPressed() {
         if (key == CODED) {
             activeKeys.add(keyCode);
+
         }
         activeKeys.add(key);
         switch (key) {
@@ -225,6 +243,19 @@ public class Game extends PApplet {
     }
 
     public static void main(String... args) {
+        List<Wall> newWalles =  Arrays.asList(walls);
+        ArrayList<Wall> newWalls = new ArrayList<>(newWalles);
+        for (int i=7;i<1000;i+=20) {
+            for (int j=2;j<1000;j+=20) {
+                if (aCanSeeB(i,j,i+40,j+40)){
+                    newWalls.add(new Wall(i,j,i,j));
+                }
+            }
+        }
+
+        walls=newWalls.toArray(new Wall[0]);
+        myLevel.setWalls(newWalls.toArray(new Wall[0]));
+
         PApplet.main("proc.sketches.Game");
     }
 
@@ -291,7 +322,7 @@ public class Game extends PApplet {
         PlayerAi player = PlayerAi.loadFromFile(playerBrain);
         while (true) {
             System.out.println("decision on player:" + tankId);
-            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
+            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId),this);
             switch (action.getFireDecision()) {
                 case "FIRE":
                     newBullets.add(tanks.get(tankId).fireBullet());
@@ -319,6 +350,39 @@ public class Game extends PApplet {
                     tanks.get(tankId).angleStop();
                     break;
             }
+        }
+    }
+
+    public static boolean aCanSeeB(float x1,float y1,float x2,float y2) {
+        boolean result= true;
+    for (Wall w: walls) {
+        result = result && !checkIfLinesIntersect(x1,x2,y1,y2,w.getX1(),w.getX2(),w.getY1(),w.getY2());
+    }
+    return result;
+    }
+
+    public static boolean checkIfLinesIntersect(float x1, float x2, float y1, float y2,
+                             float pi1, float pi2, float qi1, float qi2) {
+        Coordinate p1 = new Coordinate(x1, y1);
+        Coordinate p2 = new Coordinate(x2, y2);
+
+        // Create line segment 2 with endpoints (0,2) and (2,0)
+        Coordinate q1 = new Coordinate(pi1, qi1);
+        Coordinate q2 = new Coordinate(pi2, qi2);
+
+        // Create LineIntersector
+        LineIntersector lineIntersector = new RobustLineIntersector();
+        lineIntersector.computeIntersection(p1, p2, q1, q2);
+
+        // Check if the line segments intersect
+        if (lineIntersector.hasIntersection()) {
+
+            Coordinate intersection = lineIntersector.getIntersection(0);
+            System.out.println("Intersection point: " + intersection);
+            return true;
+        } else {
+            System.out.println("Line segments do not intersect");
+            return false;
         }
     }
 }
