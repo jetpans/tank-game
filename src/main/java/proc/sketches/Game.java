@@ -15,37 +15,35 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 public class Game extends PApplet {
     public static final int dimX = 1000;
     public static final int dimY = 1000;
-    static ArrayList<Tank> tanks = new ArrayList<>();
-    static ArrayList<Bullet> bullets = new ArrayList<>();
-    static ArrayList<Bullet> deadBullets = new ArrayList<>();
-    static ArrayList<Bullet> newBullets = new ArrayList<>();
-    static HashSet<Object> activeKeys = new HashSet<>();
+    public static ArrayList<Tank> tanks = new ArrayList<>();
+    public static ArrayList<Bullet> bullets = new ArrayList<>();
+    public static ArrayList<Bullet> deadBullets = new ArrayList<>();
+    public static ArrayList<Bullet> newBullets = new ArrayList<>();
+    public static HashSet<Object> activeKeys = new HashSet<>();
+    public static Integer hardcodedPlayerId = null;
 
-    static Wall[] walls = {
+    public static Wall[] walls = {
             //Outer walls
             new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
             new Wall(5, dimY - 5, dimX - 5, dimY - 5),
-            //Obstacles
+            //Obstacle 1
             new Wall(dimX / 2, dimY/4, dimX / 2, 3*dimY/8),
             new Wall(dimX / 2 +dimX/8, dimY/4, dimX / 2+dimX/8, 3*dimY/8),
 
             new Wall(dimX/2,dimY/4,dimX/2+dimX/8,dimY/4),
-            new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8),
-            //testing
-            new Wall(dimX/2 +dimX/8,0,dimX/2+dimX/8,1000),
-            new Wall(dimX / 2, 1000,dimX / 2, 0)
+            new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8)
+
     };
-    static Level myLevel = new Level(walls);
+    public static Level myLevel = new Level(walls);
 
     public void settings() {
         Thread playerOneThread = new Thread(new Runnable() {
@@ -67,7 +65,7 @@ public class Game extends PApplet {
             @Override
             public void run() {
                 try {
-                    playerAi(null,0);
+                    playerAi(Paths.get("AAA"),0);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (AWTException e) {
@@ -150,7 +148,6 @@ public class Game extends PApplet {
         strokeWeight(5);
         line(w.getX1(), w.getY1(), w.getX2(), w.getY2());
     }
-
 
     public void keyPressed() {
         if (key == CODED) {
@@ -243,19 +240,6 @@ public class Game extends PApplet {
     }
 
     public static void main(String... args) {
-        List<Wall> newWalles =  Arrays.asList(walls);
-        ArrayList<Wall> newWalls = new ArrayList<>(newWalles);
-        for (int i=7;i<1000;i+=20) {
-            for (int j=2;j<1000;j+=20) {
-                if (aCanSeeB(i,j,i+40,j+40)){
-                    newWalls.add(new Wall(i,j,i,j));
-                }
-            }
-        }
-
-        walls=newWalls.toArray(new Wall[0]);
-        myLevel.setWalls(newWalls.toArray(new Wall[0]));
-
         PApplet.main("proc.sketches.Game");
     }
 
@@ -319,10 +303,10 @@ public class Game extends PApplet {
         return new GameState();
     }
     void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
-        PlayerAi player = PlayerAi.loadFromFile(playerBrain);
+        PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
         while (true) {
-            System.out.println("decision on player:" + tankId);
-            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId),this);
+            //sleep(50);
+            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
             switch (action.getFireDecision()) {
                 case "FIRE":
                     newBullets.add(tanks.get(tankId).fireBullet());
@@ -376,13 +360,31 @@ public class Game extends PApplet {
 
         // Check if the line segments intersect
         if (lineIntersector.hasIntersection()) {
-
             Coordinate intersection = lineIntersector.getIntersection(0);
-            System.out.println("Intersection point: " + intersection);
             return true;
         } else {
-            System.out.println("Line segments do not intersect");
             return false;
         }
+    }
+
+    public static double calculateDistance(double x1, double y1, double x2, double y2) {
+        // Calculate the squared differences
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
+        // Calculate the squared distance
+        double squaredDistance = dx * dx + dy * dy;
+
+        // Calculate the distance by taking the square root
+        double distance = Math.sqrt(squaredDistance);
+
+        return distance;
+    }
+
+    public static double calculateAngleFromXAxis(double x1, double y1, double x2, double y2) {
+        // Calculate the angle using arctangent
+        double angle = Math.atan2(y2 - y1, x2 - x1);
+
+        return angle;
     }
 }

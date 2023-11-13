@@ -77,7 +77,13 @@ public class Tank extends PApplet {
         }
 
         // Update the angle based on angular velocity
-        this.angle += this.angularVelocity * timeDelta;
+        this.angle += (float) (this.angularVelocity * timeDelta);
+        this.angle = Float.parseFloat(String.valueOf(this.angle % (2*Math.PI)));
+        if (this.angle>Math.PI) {
+            this.angle = Float.parseFloat(String.valueOf( -2*Math.PI + this.angle));
+        } else if(this.angle<=-Math.PI) {
+            this.angle = Float.parseFloat(String.valueOf( 2*Math.PI - this.angle));
+        }
     }
 
 
