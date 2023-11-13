@@ -19,6 +19,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static java.lang.Thread.sleep;
+
 public class Game extends PApplet {
     public static final int dimX = 1000;
     public static final int dimY = 1000;
@@ -40,7 +42,12 @@ public class Game extends PApplet {
             new Wall(dimX / 2 +dimX/8, dimY/4, dimX / 2+dimX/8, 3*dimY/8),
 
             new Wall(dimX/2,dimY/4,dimX/2+dimX/8,dimY/4),
-            new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8)
+            new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8),
+            //Obstacle 2
+           /* new Wall(dimX/2-20,dimY/2-20,dimX/2+20,dimY/2-20),
+            new Wall(dimX/2-20,dimY/2+20,dimX/2+20,dimY/2+20),
+            new Wall(dimX/2-20,dimY/2-20,dimX/2-20,dimY/2+20),
+            new Wall(dimX/2+20,dimY/2-20,dimX/2+20,dimY/2+20)*/
 
     };
     public static Level myLevel = new Level(walls);
@@ -305,7 +312,7 @@ public class Game extends PApplet {
     void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
         PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
         while (true) {
-            //sleep(50);
+            sleep(50);
             AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
             switch (action.getFireDecision()) {
                 case "FIRE":
