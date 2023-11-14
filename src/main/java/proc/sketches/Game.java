@@ -16,6 +16,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -30,6 +32,8 @@ public class Game extends PApplet {
     public static ArrayList<Bullet> newBullets = new ArrayList<>();
     public static HashSet<Object> activeKeys = new HashSet<>();
     public static Integer hardcodedPlayerId = null;
+    public static Instant LastBullet0 = Instant.now();
+    public static Instant LastBullet1 = Instant.now();
 
     public static Wall[] walls = {
             //Outer walls
@@ -37,23 +41,30 @@ public class Game extends PApplet {
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
             new Wall(5, dimY - 5, dimX - 5, dimY - 5),
-            //Obstacle 1
+            //Obstacle 1 upper right square
             new Wall(dimX / 2, dimY/4, dimX / 2, 3*dimY/8),
             new Wall(dimX / 2 +dimX/8, dimY/4, dimX / 2+dimX/8, 3*dimY/8),
 
             new Wall(dimX/2,dimY/4,dimX/2+dimX/8,dimY/4),
             new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8),
-            //Obstacle 2
-           /* new Wall(dimX/2-20,dimY/2-20,dimX/2+20,dimY/2-20),
+            //Obstacle 2 midle square
+            new Wall(dimX/2-20,dimY/2-20,dimX/2+20,dimY/2-20),
             new Wall(dimX/2-20,dimY/2+20,dimX/2+20,dimY/2+20),
             new Wall(dimX/2-20,dimY/2-20,dimX/2-20,dimY/2+20),
-            new Wall(dimX/2+20,dimY/2-20,dimX/2+20,dimY/2+20)*/
+            new Wall(dimX/2+20,dimY/2-20,dimX/2+20,dimY/2+20),
+            //Obstacle 3 left down recktangle
+            new Wall(200,100,dimX/2,100),
+            new Wall(200,150,dimX/2,150),
+            new Wall(200,100,200,150),
+            new Wall(dimX/2,100,dimX/2,150)
+
+
 
     };
     public static Level myLevel = new Level(walls);
 
     public void settings() {
-        Thread playerOneThread = new Thread(new Runnable() {
+        /*Thread playerOneThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -67,7 +78,7 @@ public class Game extends PApplet {
                 }
             }
         });
-        playerOneThread.start();
+        playerOneThread.start();*/
         Thread playerTwoThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -87,8 +98,8 @@ public class Game extends PApplet {
         size(dimX, dimY);
         int[] redColor = {160, 20, 10};
         int[] blueColor = {5, 5, 120};
-        tanks.add(new Tank(dimX / 3, dimY / 3, 0, redColor));
-        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor));
+        tanks.add(new Tank(dimX / 3, dimY / 3, 0, redColor,0));
+        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor,1));
     }
 
     public void draw() {
@@ -119,8 +130,26 @@ public class Game extends PApplet {
         for (Wall w : myLevel.getWalls()) {
             showWall(w);
         }
-        if (newBullets.size() != 0) {
-            bullets.addAll(newBullets);
+        ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
+        if (!tempNewBullets.isEmpty()) {
+            for (Bullet b : tempNewBullets) {
+                int count= (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
+                boolean canShoot = true;
+                if (b.getOwner().getId()==0 && ChronoUnit.SECONDS.between(LastBullet0,Instant.now())<0.2) {
+                    canShoot=false;
+                } else if(b.getOwner().getId()==1 && ChronoUnit.SECONDS.between(LastBullet1,Instant.now())<0.2) {
+                    canShoot=false;
+                }
+                if (count<5 && canShoot) {
+                    bullets.add(b);
+                    if (b.getOwner().getId()==0) {
+                        LastBullet0 = Instant.now();
+                    } else {
+                        LastBullet1 = Instant.now();
+                    }
+
+                }
+            }
             newBullets.clear();
         }
 
@@ -204,7 +233,7 @@ public class Game extends PApplet {
         activeKeys.remove(key);
         activeKeys.remove(keyCode);
         if (key == CODED) {
-            System.out.println(activeKeys);
+            System.out.println("active keys: "+activeKeys);
         }
         switch (key) {
             case 'w':
@@ -312,7 +341,7 @@ public class Game extends PApplet {
     void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
         PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
         while (true) {
-            sleep(50);
+            sleep(5);
             AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
             switch (action.getFireDecision()) {
                 case "FIRE":

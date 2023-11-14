@@ -3,8 +3,10 @@ package proc.sketches;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Tank extends PApplet {
+    private int id;
     private float posX;
     private float posY;
     private float angle;
@@ -18,7 +20,7 @@ public class Tank extends PApplet {
     public final float SPAWN_LOCATION_X;
     public final float SPAWN_LOCATION_Y;
 
-    public Tank(float posX, float posY, float angle, int[] color) {
+    public Tank(float posX, float posY, float angle, int[] color,int id) {
         this.posX = posX;
         this.posY = posY;
         SPAWN_LOCATION_X = posX;
@@ -26,6 +28,7 @@ public class Tank extends PApplet {
         this.color = color;
         this.angle = angle;
         this.velocity = 0;
+        this.id = id;
     }
 
 
@@ -82,7 +85,7 @@ public class Tank extends PApplet {
         if (this.angle>Math.PI) {
             this.angle = Float.parseFloat(String.valueOf( -2*Math.PI + this.angle));
         } else if(this.angle<=-Math.PI) {
-            this.angle = Float.parseFloat(String.valueOf( 2*Math.PI - this.angle));
+            this.angle = Float.parseFloat(String.valueOf( 2*Math.PI + this.angle));
         }
     }
 
@@ -181,4 +184,24 @@ public class Tank extends PApplet {
         this.posY = SPAWN_LOCATION_Y;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tank tank = (Tank) o;
+        return id == tank.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

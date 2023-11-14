@@ -5,29 +5,105 @@ import AiPlayer.GameState;
 import proc.sketches.Game;
 import proc.sketches.Tank;
 
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class HardCodedPlayerByMisko {
+    int GRID_COMPLEXITY=10;
     int chosenDestination=0;
     Float chosenAngle = null;
+    int distX = Game.dimX/GRID_COMPLEXITY;
+    int distY = Game.dimY/GRID_COMPLEXITY;
+    ArrayList<Point> allDestinations = generateAllDestinations();
+
+    private ArrayList<Point> generateAllDestinations() {
+        ArrayList<Point> result = new ArrayList<>();
+        for (int i=1; i<=GRID_COMPLEXITY*GRID_COMPLEXITY;i++) {
+            result.add(new Point(getXfromDest(i),getYfromDest(i),i));
+        }
+        return result;
+    }
 
     public AiOutput makeAction(GameState state) {
-
+        Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
+        Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
+        System.out.println("curent dest: "+chosenDestination+" chosen angle: "+chosenAngle);
         if(aimedAtEnemy()) {
             chosenDestination=0;
             chosenAngle = null;
+            System.out.println("trying to shoot");
             return new AiOutput("FIRE","STOP_ANGULAR","STOP_LINEAR");
         }
         if(couldAimAtEnemy()) {
             chosenDestination=0;
-            Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
-            Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
+            System.out.println("Aiming dude "+myTank.getAngle());
             chosenAngle = (float) Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY());
-            System.out.println(myTank.getAngle()+" "+chosenAngle);
             String chosenDirection = getDirectionFromNeededAngle(myTank.getAngle(),chosenAngle);
-            System.out.println(chosenDirection);
+            return new AiOutput("NO_FIRE",chosenDirection,"STOP_LINEAR");
+        }
+        if( chosenDestination != 0 &&
+                Math.abs(myTank.getPosX()-getXfromDest(chosenDestination))<10  && Math.abs(myTank.getPosY()-getYfromDest(chosenDestination))<10)
+        {
+            chosenAngle = null;
+            chosenDestination = 0;
+            return new AiOutput("NO_FIRE","STOP_ANGULAR","FORWARD");
+        }
+        if( chosenDestination != 0 &&
+            Math.abs(Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),getXfromDest(chosenDestination),getYfromDest(chosenDestination))-myTank.getAngle())<0.06f)
+        {
+            chosenAngle = null;
+            return new AiOutput("NO_FIRE","STOP_ANGULAR","FORWARD");
+        }
+        if( chosenDestination != 0 &&
+                Math.abs(Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),getXfromDest(chosenDestination),getYfromDest(chosenDestination))-myTank.getAngle())>0.04f)
+        {
+            System.out.println("Aiming destination: " + myTank.getAngle());
+            chosenAngle = (float) Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),getXfromDest(chosenDestination),getYfromDest(chosenDestination));
+            String chosenDirection = getDirectionFromNeededAngle(myTank.getAngle(),chosenAngle);
             return new AiOutput("NO_FIRE",chosenDirection,"STOP_LINEAR");
         }
 
+        ArrayList<Point> canGetThereSeesTarget = generateBestDestinations(myTank,otherTank);
+        System.out.println("BEST: "+canGetThereSeesTarget);
+        if (!canGetThereSeesTarget.isEmpty()) {
+            chosenDestination =  canGetThereSeesTarget.get(ThreadLocalRandom.current().nextInt(0, canGetThereSeesTarget.size())).getOrigin();
+            chosenAngle = null;
+        } else {
+            ArrayList<Point> canGetThere = generateOkayishDestinations(myTank);
+            chosenDestination =canGetThere.get(ThreadLocalRandom.current().nextInt(0, canGetThere.size())).getOrigin();
+            chosenAngle= null;
+        }
+
         return new AiOutput("NO_FIRE","STOP_ANGULAR","STOP_LINEAR");
+    }
+
+    private ArrayList<Point> generateBestDestinations(Tank myThank,Tank otherTank) {
+        ArrayList<Point> result= new ArrayList<>();
+        for (Point p : allDestinations) {
+            if (Game.aCanSeeB(myThank.getPosX(),myThank.getPosY(),p.getX(),p.getY()) &&
+            Game.aCanSeeB(p.getX(),p.getY(),otherTank.getPosX(),otherTank.getPosY())) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+    private ArrayList<Point> generateOkayishDestinations(Tank myThank) {
+        ArrayList<Point> result= new ArrayList<>();
+        for (Point p : allDestinations) {
+            if (Game.aCanSeeB(myThank.getPosX(),myThank.getPosY(),p.getX(),p.getY())) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    private int getYfromDest(int chosenDestination) {
+        return distY/2+(distY * (chosenDestination / 5));
+    }
+
+    private int getXfromDest(int chosenDestination) {
+        return distX/2+(distX* (chosenDestination % 5));
+
     }
 
     private String getDirectionFromNeededAngle(float angle, Float chosenAngle) {
@@ -45,7 +121,7 @@ public class HardCodedPlayerByMisko {
                 return "LEFT";
             }
         } else {
-            if(chosenAngle-angle<=Math.PI) {
+            if(chosenAngle-angle<Math.PI) {
                 return "LEFT";
             }
             else {
@@ -58,7 +134,6 @@ public class HardCodedPlayerByMisko {
         Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
         Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
         if (Game.aCanSeeB(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())) {
-            System.out.println("Could See him");
             return true;
         }
         return false;
@@ -67,11 +142,55 @@ public class HardCodedPlayerByMisko {
     private boolean aimedAtEnemy() {
         Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
         Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
-        if (Math.abs(Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())-myTank.getAngle())<0.02f
+        if (Math.abs(Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())-myTank.getAngle())<0.04f
         && Game.aCanSeeB(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())) {
-            System.out.println("Found");
             return true;
         }
         return false;
+    }
+}
+
+class Point {
+    int x;
+    int y;
+    int origin;
+
+    public Point(int x, int y,int origin) {
+        this.x = x;
+        this.y = y;
+        this.origin= origin;
+    }
+
+    public int getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(int origin) {
+        this.origin = origin;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                ", origin=" + origin +
+                '}';
     }
 }
