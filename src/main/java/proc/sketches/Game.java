@@ -9,11 +9,7 @@ import org.locationtech.jts.geom.Coordinate;
 import processing.core.PApplet;
 
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -42,24 +38,25 @@ public class Game extends PApplet {
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
             new Wall(5, dimY - 5, dimX - 5, dimY - 5),
             //Obstacle 1 upper right square
-            new Wall(dimX / 2, dimY/4, dimX / 2, 3*dimY/8),
-            new Wall(dimX / 2 +dimX/8, dimY/4, dimX / 2+dimX/8, 3*dimY/8),
+            new Wall(dimX / 2, dimY / 4, dimX / 2, 3 * dimY / 8),
+            new Wall(dimX / 2 + dimX / 8, dimY / 4, dimX / 2 + dimX / 8, 3 * dimY / 8),
 
-            new Wall(dimX/2,dimY/4,dimX/2+dimX/8,dimY/4),
-            new Wall(dimX / 2 +dimX/8, 3*dimY/8,dimX / 2, 3*dimY/8),
-            //Obstacle 2 midle square
-            new Wall(dimX/2-20,dimY/2-20,dimX/2+20,dimY/2-20),
-            new Wall(dimX/2-20,dimY/2+20,dimX/2+20,dimY/2+20),
-            new Wall(dimX/2-20,dimY/2-20,dimX/2-20,dimY/2+20),
-            new Wall(dimX/2+20,dimY/2-20,dimX/2+20,dimY/2+20),
-            //Obstacle 3 left down recktangle
-            new Wall(200,100,dimX/2,100),
-            new Wall(200,150,dimX/2,150),
-            new Wall(200,100,200,150),
-            new Wall(dimX/2,100,dimX/2,150)
+            new Wall(dimX / 2, dimY / 4, dimX / 2 + dimX / 8, dimY / 4),
+            new Wall(dimX / 2 + dimX / 8, 3 * dimY / 8, dimX / 2, 3 * dimY / 8),
+            //Obstacle 2 middle square
+            new Wall(dimX / 2 - 20, dimY / 2 - 20, dimX / 2 + 20, dimY / 2 - 20),
+            new Wall(dimX / 2 - 20, dimY / 2 + 20, dimX / 2 + 20, dimY / 2 + 20),
+            new Wall(dimX / 2 - 20, dimY / 2 - 20, dimX / 2 - 20, dimY / 2 + 20),
+            new Wall(dimX / 2 + 20, dimY / 2 - 20, dimX / 2 + 20, dimY / 2 + 20),
+            //Obstacle 3 left down rectangle
+            new Wall(200, dimY - 100, dimX / 2, dimY - 100),
+            new Wall(200, dimY - 150, dimX / 2, dimY - 150),
+            new Wall(200, dimY - 100, 200, dimY - 150),
+            new Wall(dimX / 2, dimY - 100, dimX / 2, dimY - 150),
+            // random lines
 
-
-
+            new Wall(250, 550, 250, 300),
+            new Wall(500, 600, 500, 800)
     };
     public static Level myLevel = new Level(walls);
 
@@ -279,60 +276,7 @@ public class Game extends PApplet {
         PApplet.main("proc.sketches.Game");
     }
 
-    void serverCommunicationLoop() throws IOException, AWTException, InterruptedException {
-        Socket clientSocket = new Socket("127.0.0.1", 12345);
-        System.out.println("Connected to " + clientSocket.getRemoteSocketAddress());
-
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in));
-
-        String userInput;
-
-        while (true) {
-            String response = in.readLine();
-            if (response == null) {
-                continue;
-            }
-            String[] params = response.split(",");
-            if (params.length == 2) {
-                String action = params[0];
-                Integer tankId = Integer.parseInt(params[1]);
-                switch (action) {
-                    case "FIRE":
-                        newBullets.add(tanks.get(tankId).fireBullet());
-                        break;
-                    case "FORWARD":
-                        tanks.get(tankId).forward();
-                        break;
-                    case "BACKWARD":
-                        tanks.get(tankId).backward();
-                        break;
-                    case "RIGHT":
-                        tanks.get(tankId).right();
-                        break;
-                    case "LEFT":
-                        tanks.get(tankId).left();
-                        break;
-                    case "STOP_LINEAR":
-                        tanks.get(tankId).stop();
-                        break;
-                    case "STOP_ANGULAR":
-                        tanks.get(tankId).angleStop();
-                        break;
-                    case "GET_STATE":
-                        System.out.println("I WAS ASKED FOR STATE");
-                        //out.println(getStateString());
-                        break;
-                }
-                System.out.println(action);
-            }
-
-        }
-    }
-
-    GameState getCurrentGameState(Integer tankId) {
+    static GameState getCurrentGameState(Integer tankId) {
         /*
         TODO: Generate Current game state for input in AI
          */
