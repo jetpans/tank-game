@@ -307,12 +307,10 @@ public class Game extends PApplet {
         startTime=Instant.now();
         LevelTypes.setDimensions(dimX,dimY);
         String wallsChoice = "1";
-        Path resultsOutputFile = Paths.get("DefaultResultFile");
-
 
         //reading args
         for (int i= 0; i<args.length;i++) {
-            if (args[i].equals("--levelChoice")) {
+            if (args[i].equals("--LevelChoice")) {
                 i++;
                 try {
                     Integer.parseInt(args[i]);
@@ -326,10 +324,7 @@ public class Game extends PApplet {
             } else if (args[i].equals("--Player2")) {
                 i++;
                 AbsolutePathToPlayer2Brain = args[i];
-            } else if (args[i].equals("--ResultFile")) {
-                i++;
-                resultsOutputFile = Paths.get(args[i]);
-            } else if (args[i].equals("--timeLimit")) {
+            } else if (args[i].equals("--TimeLimit")) {
                 i++;
                 try {
                     timeLimit = Integer.parseInt(args[i]);

@@ -102,7 +102,7 @@ public class GameNoVisuals extends Game {
 
         //reading args
         for (int i= 0; i<args.length;i++) {
-            if (args[i].equals("--levelChoice")) {
+            if (args[i].equals("--LevelChoice")) {
                 i++;
                 try {
                     Integer.parseInt(args[i]);
@@ -119,7 +119,7 @@ public class GameNoVisuals extends Game {
             } else if (args[i].equals("--ResultFile")) {
                 i++;
                 resultsOutputFile = Paths.get(args[i]);
-            } else if (args[i].equals("--timeLimit")) {
+            } else if (args[i].equals("--TimeLimit")) {
                 i++;
                 try {
                     timeLimit = Integer.parseInt(args[i]);
