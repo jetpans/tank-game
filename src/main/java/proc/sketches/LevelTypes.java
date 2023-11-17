@@ -4,11 +4,25 @@ public class LevelTypes {
     public static int dimX = 1000;
     public static int dimY = 1000;
     
-    public LevelTypes(int dimX,int dimY) {
+    public static void setDimensions(int dimX,int dimY) {
         LevelTypes.dimX = dimX;
         LevelTypes.dimY = dimY;
     }
-    public static Wall[] OnlyOuterWalls = {
+    public static Wall[] getWallBlueprint(Integer id) {
+        if (id == 1) {
+            return LevelTypes.onlyOuterWalls;
+        } else if( id == 2) {
+            return LevelTypes.verticalSplitWalls;
+        } else if( id == 3) {
+            return LevelTypes.smallBoxCenterWalls;
+        } else if( id == 4) {
+            return LevelTypes.tunnelsWalls;
+        } else if( id == 5) {
+            return LevelTypes.randomWeirdWalls;
+        }
+        return LevelTypes.onlyOuterWalls;
+    }
+    public static Wall[] onlyOuterWalls = {//id:1
             //Outer walls
             new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
@@ -16,20 +30,46 @@ public class LevelTypes {
             new Wall(5, dimY - 5, dimX - 5, dimY - 5)
     };
 
-    public static Wall[] SmallBoxCenterWalls = {
+    public static Wall[] verticalSplitWalls = {//id:2
             //Outer walls
             new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
             new Wall(5, dimY - 5, dimX - 5, dimY - 5),
-            //Obstacle 2 midle square
+            //lines
+            new Wall(dimX/2,0,dimX/2,dimY/2-100),
+            new Wall(dimX/2,dimY,dimX/2,dimY/2+100)
+    };
+
+    public static Wall[] smallBoxCenterWalls = {//id:3
+            //Outer walls
+            new Wall(5, 5, dimX - 5, 5),
+            new Wall(5, 5, 5, dimY - 5),
+            new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
+            new Wall(5, dimY - 5, dimX - 5, dimY - 5),
+            //Obstacle 2 middle square
             new Wall(dimX / 2 - 40, dimY / 2 - 40, dimX / 2 + 40, dimY / 2 - 40),
             new Wall(dimX / 2 - 40, dimY / 2 + 40, dimX / 2 + 40, dimY / 2 + 40),
             new Wall(dimX / 2 - 40, dimY / 2 - 40, dimX / 2 - 40, dimY / 2 + 40),
             new Wall(dimX / 2 + 40, dimY / 2 - 40, dimX / 2 + 40, dimY / 2 + 40)
     };
-    
-    public static Wall[] RandomWeirdWalls = {
+
+    public static Wall[] tunnelsWalls = {//id:4
+            new Wall(5, 5, dimX - 5, 5),
+            new Wall(5, 5, 5, dimY - 5),
+            new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
+            new Wall(5, dimY - 5, dimX - 5, dimY - 5),
+            //tunnels
+            new Wall(dimX/2,dimY/2-100,dimX/2,dimY/2+100),
+            new Wall(2*dimX/8,dimY/2-100,2*dimX/8,dimY/2+100),
+            new Wall(3*dimX/8,dimY/2-100,3*dimX/8,dimY/2+100),
+            new Wall(5*dimX/8,dimY/2-100,5*dimX/8,dimY/2+100),
+            new Wall(6*dimX/8,dimY/2-100,6*dimX/8,dimY/2+100),
+            new Wall(dimX /8,dimY/2-100, dimX /8,dimY/2+100),
+            new Wall(7*dimX/8,dimY/2-100,7*dimX/8,dimY/2+100)
+    };
+
+    public static Wall[] randomWeirdWalls = {//id:5
             //Outer walls
             new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),

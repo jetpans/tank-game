@@ -8,6 +8,7 @@ import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Coordinate;
 import processing.core.PApplet;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,35 +31,20 @@ public class Game extends PApplet {
     public static Integer hardcodedPlayerId = null;
     public static Instant LastBullet0 = Instant.now();
     public static Instant LastBullet1 = Instant.now();
-
+    public static boolean simulationStop =false;
+    public static Instant startTime;
+    private static int timeLimit=180;
+    //1 unit is 1 second
     public static Wall[] walls = {
             //Outer walls
             new Wall(5, 5, dimX - 5, 5),
             new Wall(5, 5, 5, dimY - 5),
             new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
             new Wall(5, dimY - 5, dimX - 5, dimY - 5),
-            //Obstacle 1 upper right square
-            new Wall(dimX / 2, dimY / 4, dimX / 2, 3 * dimY / 8),
-            new Wall(dimX / 2 + dimX / 8, dimY / 4, dimX / 2 + dimX / 8, 3 * dimY / 8),
-
-            new Wall(dimX / 2, dimY / 4, dimX / 2 + dimX / 8, dimY / 4),
-            new Wall(dimX / 2 + dimX / 8, 3 * dimY / 8, dimX / 2, 3 * dimY / 8),
-            //Obstacle 2 middle square
-            new Wall(dimX / 2 - 20, dimY / 2 - 20, dimX / 2 + 20, dimY / 2 - 20),
-            new Wall(dimX / 2 - 20, dimY / 2 + 20, dimX / 2 + 20, dimY / 2 + 20),
-            new Wall(dimX / 2 - 20, dimY / 2 - 20, dimX / 2 - 20, dimY / 2 + 20),
-            new Wall(dimX / 2 + 20, dimY / 2 - 20, dimX / 2 + 20, dimY / 2 + 20),
-            //Obstacle 3 left down rectangle
-            new Wall(200, dimY - 100, dimX / 2, dimY - 100),
-            new Wall(200, dimY - 150, dimX / 2, dimY - 150),
-            new Wall(200, dimY - 100, 200, dimY - 150),
-            new Wall(dimX / 2, dimY - 100, dimX / 2, dimY - 150),
-            // random lines
-
-            new Wall(250, 550, 250, 300),
-            new Wall(500, 600, 500, 800)
+            new Wall(dimX/2,400,dimX/2,800)
     };
-    public static Level myLevel = new Level(walls);
+    public static Level myLevel=new Level(walls);
+
 
     public void settings() {
         /*Thread playerOneThread = new Thread(new Runnable() {
@@ -76,18 +62,15 @@ public class Game extends PApplet {
             }
         });
         playerOneThread.start();*/
-        Thread playerTwoThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    playerAi(Paths.get("AAA"),0);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (AWTException e) {
-                    throw new RuntimeException(e);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        Thread playerTwoThread = new Thread(() -> {
+            try {
+                playerAi(Paths.get("AAA"),0);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (AWTException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
         playerTwoThread.start();
@@ -100,56 +83,73 @@ public class Game extends PApplet {
     }
 
     public void draw() {
-        background(255, 255, 255);
-        for (Bullet b : bullets) {
-            if (b.shouldIDie()) {
-                deadBullets.add(b);
-                continue;
-
+        if (!simulationStop) {
+            if(ChronoUnit.SECONDS.between(startTime,Instant.now())>timeLimit) {
+                simulationStop=true;
             }
-            b.update(1, myLevel);
-            showBullet(b);
-        }
-        for (Bullet i : deadBullets) {
-            bullets.remove(i);
-        }
-        deadBullets.clear();
-        for (Tank tank : tanks) {
-            Bullet res = tank.collideWithBullets(bullets);
-            if (res != null) {
-                tank.respawn();
-                deadBullets.add(res);
-            }
-            tank.update(1, myLevel);
-            showTank(tank);
-        }
+            background(255, 255, 255);
+            for (Bullet b : bullets) {
+                if (b.shouldIDie()) {
+                    deadBullets.add(b);
+                    continue;
 
-        for (Wall w : myLevel.getWalls()) {
-            showWall(w);
-        }
-        ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
-        if (!tempNewBullets.isEmpty()) {
-            for (Bullet b : tempNewBullets) {
-                int count= (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
-                boolean canShoot = true;
-                if (b.getOwner().getId()==0 && ChronoUnit.SECONDS.between(LastBullet0,Instant.now())<0.2) {
-                    canShoot=false;
-                } else if(b.getOwner().getId()==1 && ChronoUnit.SECONDS.between(LastBullet1,Instant.now())<0.2) {
-                    canShoot=false;
                 }
-                if (count<5 && canShoot) {
-                    bullets.add(b);
-                    if (b.getOwner().getId()==0) {
-                        LastBullet0 = Instant.now();
-                    } else {
-                        LastBullet1 = Instant.now();
+                b.update(1, myLevel);
+                showBullet(b);
+            }
+            for (Bullet i : deadBullets) {
+                bullets.remove(i);
+            }
+            deadBullets.clear();
+            for (Tank tank : tanks) {
+                Bullet res = tank.collideWithBullets(bullets);
+                if (res != null) {
+                    simulationStop=true;
+                    SwingUtilities.invokeLater(() -> {
+                        String finalText = "WINNER: PLAYER";
+                        new TextDrawer("GAME OVER").setVisible(true);
+                    });
+                }
+                tank.update(1, myLevel);
+                showTank(tank);
+            }
+
+            for (Wall w : myLevel.getWalls()) {
+                showWall(w);
+            }
+            ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
+            if (!tempNewBullets.isEmpty()) {
+                for (Bullet b : tempNewBullets) {
+                    int count= (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
+                    boolean canShoot = true;
+                    if (b.getOwner().getId()==0 && ChronoUnit.SECONDS.between(LastBullet0,Instant.now())<0.2) {
+                        canShoot=false;
+                    } else if(b.getOwner().getId()==1 && ChronoUnit.SECONDS.between(LastBullet1,Instant.now())<0.2) {
+                        canShoot=false;
                     }
+                    if (count<5 && canShoot) {
+                        bullets.add(b);
+                        if (b.getOwner().getId()==0) {
+                            LastBullet0 = Instant.now();
+                        } else {
+                            LastBullet1 = Instant.now();
+                        }
 
+                    }
                 }
+                newBullets.clear();
             }
-            newBullets.clear();
+        } else {
+            for (Bullet b : bullets) {
+                showBullet(b);
+            }
+            for (Tank tank : tanks) {
+                showTank(tank);
+            }
+            for (Wall w : myLevel.getWalls()) {
+                showWall(w);
+            }
         }
-
     }
 
     public void showTank(Tank t) {
@@ -183,6 +183,9 @@ public class Game extends PApplet {
     }
 
     public void keyPressed() {
+        if (simulationStop) {
+            return;
+        }
         if (key == CODED) {
             activeKeys.add(keyCode);
 
@@ -227,6 +230,9 @@ public class Game extends PApplet {
     }
 
     public void keyReleased() {
+        if (simulationStop) {
+            return;
+        }
         activeKeys.remove(key);
         activeKeys.remove(keyCode);
         if (key == CODED) {
@@ -273,6 +279,40 @@ public class Game extends PApplet {
     }
 
     public static void main(String... args) {
+        startTime=Instant.now();
+        LevelTypes.setDimensions(dimX,dimY);
+        String wallsChoice = "1";
+        String AbsolutePathToPlayer1Brain = null;
+        String AbsolutePathToPlayer2Brain = null;
+        Path resultsOutputFile = Paths.get("DefaultResultFile");
+
+
+        //reading args
+        for (int i= 0; i<args.length;i++) {
+            if (args[i].equals("--levelChoice")) {
+                i++;
+                try {
+                    Integer.parseInt(args[i]);
+                    wallsChoice = args[i];
+                } catch (Throwable e) {
+                    //LOL NOTHING
+                }
+            } else if (args[i].equals("--Player1")) {
+                i++;
+                AbsolutePathToPlayer1Brain = args[i];
+            } else if (args[i].equals("--Player2")) {
+                i++;
+                AbsolutePathToPlayer2Brain = args[i];
+            } else if (args[i].equals("--ResultFile")) {
+                i++;
+                resultsOutputFile = Paths.get(args[i]);
+            } else if (args[i].equals("--timeLimit")) {
+                i++;
+                try {
+                    timeLimit = Integer.parseInt(args[i]);
+                } catch (Throwable ignored){}
+            }
+        }
         PApplet.main("proc.sketches.Game");
     }
 
@@ -284,8 +324,8 @@ public class Game extends PApplet {
     }
     void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
         PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
-        while (true) {
-            sleep(5);
+        while (!simulationStop) {
+            sleep(1);
             AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
             switch (action.getFireDecision()) {
                 case "FIRE":

@@ -1,46 +1,39 @@
 package proc.sketches;
 
 import AiPlayer.AiOutput;
-import AiPlayer.GameState;
 import AiPlayer.PlayerAi;
 import org.locationtech.jts.algorithm.LineIntersector;
 import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Coordinate;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class GameNoVisuals extends Game {
-    public static Integer winner =null;
+    public static String winner =null;
     public static final int dimX = 1000;
     public static final int dimY = 1000;
     public static ArrayList<Tank> tanks = new ArrayList<>();
     public static ArrayList<Bullet> bullets = new ArrayList<>();
     public static ArrayList<Bullet> deadBullets = new ArrayList<>();
     public static ArrayList<Bullet> newBullets = new ArrayList<>();
-    public static HashSet<Object> activeKeys = new HashSet<>();
     public static Integer hardcodedPlayerId = null;
     public static Instant LastBullet0 = Instant.now();
     public static Instant LastBullet1 = Instant.now();
+    public static int bulletsShot1 = 0;
+    public static int bulletsShot2 = 0;
+    public static String wayOfVictory = "DRAW";
 
-    public static Wall[] walls = {
-            //Outer walls
-            new Wall(5, 5, dimX - 5, 5),
-            new Wall(5, 5, 5, dimY - 5),
-            new Wall(dimX - 5, 5, dimX - 5, dimY - 5),
-            new Wall(5, dimY - 5, dimX - 5, dimY - 5),
-            //Obstacle 1 upper right square
-            new Wall(dimX/3,dimY/2,0,dimY/2)
+    public static Wall[] walls;
+    public static Level myLevel;
 
-
-
-    };
-    public static Level myLevel = new Level(walls);
-
-    public void updateGame() {
+    public static void updateGame() {
         for (Bullet b : bullets) {
             if (b.shouldIDie()) {
                 deadBullets.add(b);
@@ -48,7 +41,6 @@ public class GameNoVisuals extends Game {
 
             }
             b.update(1, myLevel);
-            showBullet(b);
         }
         for (Bullet i : deadBullets) {
             bullets.remove(i);
@@ -57,7 +49,12 @@ public class GameNoVisuals extends Game {
         for (Tank tank : tanks) {
             Bullet res = tank.collideWithBullets(bullets);
             if (res != null) {
-                winner = 1-tank.getId();
+                winner = "Player" + (2-tank.getId());
+                if (res.getOwner().getId()==tank.getId()) {
+                    wayOfVictory = "SUICIDE";
+                } else {
+                    wayOfVictory = "MURDER";
+                }
             }
         }
         ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
@@ -74,8 +71,10 @@ public class GameNoVisuals extends Game {
                     bullets.add(b);
                     if (b.getOwner().getId()==0) {
                         LastBullet0 = Instant.now();
+                        bulletsShot1++;
                     } else {
                         LastBullet1 = Instant.now();
+                        bulletsShot2++;
                     }
 
                 }
@@ -87,80 +86,173 @@ public class GameNoVisuals extends Game {
 
 
     public static void main(String... args) {
-        int[] redColor = {160, 20, 10};
-        int[] blueColor = {5, 5, 120};
-        tanks.add(new Tank(dimX / 3, dimY / 3, 0, redColor,0));
-        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor,1));
-        PlayerAi player0 = PlayerAi.loadFromFile(Paths.get(args[0]),0);
-        PlayerAi player1 = PlayerAi.loadFromFile(Paths.get(args[1]),1);
-        while (winner ==null) {
-            AiOutput action0 = player0.makeDecisionBasedOnGameState(getCurrentGameState(0));
-            switch (action0.getFireDecision()) {
-                case "FIRE":
-                    newBullets.add(tanks.get(0).fireBullet());
-                    break;
+
+        LevelTypes.setDimensions(dimX,dimY);
+        String wallsChoice = "1";
+        String AbsolutePathToPlayer1Brain = null;
+        String AbsolutePathToPlayer2Brain = null;
+        Path resultsOutputFile = Paths.get("DefaultResultFile");
+        Integer timeLimit = 100000;
+        //1000 unit in a real game would be around 5 seconds
+        // >>>>!!!!!ESTIMATED NA TEMELJU 2 POKUSAJE, PLS FORGIVE ME...I'M ONLY HUMAN
+
+
+        //reading args
+        for (int i= 0; i<args.length;i++) {
+            if (args[i].equals("--levelChoice")) {
+                i++;
+                try {
+                    Integer.parseInt(args[i]);
+                    wallsChoice = args[i];
+                } catch (Throwable e) {
+                    //LOL NOTHING
+                }
+            } else if (args[i].equals("--Player1")) {
+                i++;
+                AbsolutePathToPlayer1Brain = args[i];
+            } else if (args[i].equals("--Player2")) {
+                i++;
+                AbsolutePathToPlayer2Brain = args[i];
+            } else if (args[i].equals("--ResultFile")) {
+                i++;
+                resultsOutputFile = Paths.get(args[i]);
+            } else if (args[i].equals("--timeLimit")) {
+                i++;
+                try {
+                    timeLimit = Integer.parseInt(args[i]);
+                } catch (Throwable ignored){}
             }
-            switch (action0.getLinearDecision()) {
-                case "FORWARD":
-                    tanks.get(0).forward();
-                    break;
-                case "BACKWARD":
-                    tanks.get(0).backward();
-                    break;
-                case "STOP_LINEAR":
-                    tanks.get(0).stop();
-                    break;
-            }
-            switch (action0.getAngularDecision()) {
-                case "RIGHT":
-                    tanks.get(0).right();
-                    break;
-                case "LEFT":
-                    tanks.get(0).left();
-                    break;
-                case "STOP_ANGULAR":
-                    tanks.get(0).angleStop();
-                    break;
-            }
-            
-            AiOutput action1 = player1.makeDecisionBasedOnGameState(getCurrentGameState(1));
-            switch (action1.getFireDecision()) {
-                case "FIRE":
-                    newBullets.add(tanks.get(1).fireBullet());
-                    break;
-            }
-            switch (action1.getLinearDecision()) {
-                case "FORWARD":
-                    tanks.get(1).forward();
-                    break;
-                case "BACKWARD":
-                    tanks.get(1).backward();
-                    break;
-                case "STOP_LINEAR":
-                    tanks.get(1).stop();
-                    break;
-            }
-            switch (action1.getAngularDecision()) {
-                case "RIGHT":
-                    tanks.get(1).right();
-                    break;
-                case "LEFT":
-                    tanks.get(1).left();
-                    break;
-                case "STOP_ANGULAR":
-                    tanks.get(1).angleStop();
-                    break;
-            }
-            
         }
-        System.out.println("winner is: "+winner);
-    }
-    
-    static GameState getCurrentGameState(Integer tankId) {
-        /*
-        TODO: Generate Current game state for input in AI
-         */
-        return new GameState();
+        //starting the game simulation
+        try {
+            //initializing level
+            walls = LevelTypes.getWallBlueprint(Integer.parseInt(wallsChoice));
+            GameNoVisuals.myLevel = new Level(walls);
+
+            //creating tanks
+            int[] redColor = {160, 20, 10};
+            int[] blueColor = {5, 5, 120};
+            tanks.add(new Tank(dimX / 3, dimY / 3, 0, redColor, 0));
+            tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor, 1));
+
+            //Loading players
+            PlayerAi player0 = PlayerAi.loadFromFile(Paths.get(AbsolutePathToPlayer1Brain), 0);
+            PlayerAi player1 = PlayerAi.loadFromFile(Paths.get(AbsolutePathToPlayer2Brain), 1);
+
+            int decisions=0;
+
+            while (winner == null) {
+                decisions++;
+
+                if (decisions>= timeLimit) {
+                    winner = "DRAW";
+                }
+                //get decision from P1
+                AiOutput action0 = player0.makeDecisionBasedOnGameState(getCurrentGameState(0));
+                //Implement decision
+                switch (action0.getFireDecision()) {
+                    case "FIRE":
+                        newBullets.add(tanks.get(0).fireBullet());
+                        break;
+                }
+                switch (action0.getLinearDecision()) {
+                    case "FORWARD":
+                        tanks.get(0).forward();
+                        break;
+                    case "BACKWARD":
+                        tanks.get(0).backward();
+                        break;
+                    case "STOP_LINEAR":
+                        tanks.get(0).stop();
+                        break;
+                }
+                switch (action0.getAngularDecision()) {
+                    case "RIGHT":
+                        tanks.get(0).right();
+                        break;
+                    case "LEFT":
+                        tanks.get(0).left();
+                        break;
+                    case "STOP_ANGULAR":
+                        tanks.get(0).angleStop();
+                        break;
+                }
+
+                //get decision from P1
+                AiOutput action1 = player1.makeDecisionBasedOnGameState(getCurrentGameState(1));
+                //Implement decision
+                switch (action1.getFireDecision()) {
+                    case "FIRE":
+                        newBullets.add(tanks.get(1).fireBullet());
+                        break;
+                }
+                switch (action1.getLinearDecision()) {
+                    case "FORWARD":
+                        tanks.get(1).forward();
+                        break;
+                    case "BACKWARD":
+                        tanks.get(1).backward();
+                        break;
+                    case "STOP_LINEAR":
+                        tanks.get(1).stop();
+                        break;
+                }
+                switch (action1.getAngularDecision()) {
+                    case "RIGHT":
+                        tanks.get(1).right();
+                        break;
+                    case "LEFT":
+                        tanks.get(1).left();
+                        break;
+                    case "STOP_ANGULAR":
+                        tanks.get(1).angleStop();
+                        break;
+                }
+
+                //make decision results visible for next round
+                updateGame();
+            }
+
+            try {
+                Files.createDirectories(resultsOutputFile.getParent());
+
+                if (!Files.exists(resultsOutputFile)) {
+                    Files.createFile(resultsOutputFile);
+                }
+                String str = "WINNER: "+winner+"\n";
+                str=str + "TOTAL DECISIONS MADE: "+decisions+"\n";
+                str=str+"TOTAL BULLETS SHOT BY PLAYER 1: " + bulletsShot1 +"\n";
+                str=str+"TOTAL BULLETS SHOT BY PLAYER 2: " + bulletsShot2 +"\n";
+                str=str+"WAY OF VICTORY: "+wayOfVictory +"\n";
+
+                FileOutputStream outputStream = new FileOutputStream(resultsOutputFile.toFile());
+                byte[] strToBytes = str.getBytes();
+                outputStream.write(strToBytes);
+
+                outputStream.close();
+                System.out.println(str);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        } catch (Throwable e) {
+            System.out.println("ERROR OCCURRED: " + e );
+            try {
+                Files.createDirectories(resultsOutputFile.getParent());
+
+                if (!Files.exists(resultsOutputFile)) {
+                    Files.createFile(resultsOutputFile);
+                }
+                String str = "ERROR OCCURRED:" + e ;
+                FileOutputStream outputStream = new FileOutputStream(resultsOutputFile.toFile());
+                byte[] strToBytes = str.getBytes();
+                outputStream.write(strToBytes);
+
+                outputStream.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
     public static boolean aCanSeeB(float x1,float y1,float x2,float y2) {
