@@ -1,8 +1,11 @@
 package AiPlayer;
 
 import HardCodedPlayer.HardCodedPlayerByMisko;
-import proc.sketches.Game;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class PlayerAi {
@@ -16,18 +19,26 @@ public class PlayerAi {
     //TODO here add a new brain type and its parameters
 
 
-    public static PlayerAi loadFromFile(Path playerBrain, int id) {
-        //TODO read first line of file: type of brain
-
+    public static PlayerAi loadFromFile(Path playerBrain, int id) throws IOException {
+        BufferedReader brTest = null;
+        try {
+            brTest = new BufferedReader(new FileReader(playerBrain.toFile()));
+        } catch (FileNotFoundException e) {
+            playerBrain=null;
+        }
+        String firstLine = brTest .readLine();
+        System.out.println("Found");
         //TODO: if else --> way to read and save each type of brain
         PlayerAi playerAi = new PlayerAi();
+        playerAi.type="DUMMY";
         if(playerBrain==null) {
-            return new PlayerAi();
+            playerAi.type="DUMMY";
+            return playerAi;
         }
-        if ("AAA".equals(playerBrain.toString())) {
+        if ("HARDCODED MISKO".equals(firstLine)) {
+            System.out.println("Found");
             playerAi.type = "HARDCODED";
-            playerAi.hardCode = new HardCodedPlayerByMisko();
-            Game.hardcodedPlayerId = id;
+            playerAi.hardCode = new HardCodedPlayerByMisko(20,id);
         }
         return playerAi;
     }
@@ -40,7 +51,7 @@ public class PlayerAi {
         if (type.equals("DUMMY")) {
             return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
         } else if (type.equals("HARDCODED")) {
-            return hardCode.makeAction(currentGameState);
+            return hardCode.makeAction();
         }
         return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
     }

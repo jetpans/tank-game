@@ -28,13 +28,17 @@ public class Game extends PApplet {
     public static ArrayList<Bullet> deadBullets = new ArrayList<>();
     public static ArrayList<Bullet> newBullets = new ArrayList<>();
     public static HashSet<Object> activeKeys = new HashSet<>();
-    public static Integer hardcodedPlayerId = null;
     public static Instant LastBullet0 = Instant.now();
     public static Instant LastBullet1 = Instant.now();
+    public static int totalBullet1=0;
+    public static int totalBullet2=0;
     public static boolean simulationStop =false;
     public static Instant startTime;
     private static int timeLimit=180;
     //1 unit is 1 second
+
+    static String AbsolutePathToPlayer1Brain = null;
+    static String AbsolutePathToPlayer2Brain = null;
     public static Wall[] walls = {
             //Outer walls
             new Wall(5, 5, dimX - 5, 5),
@@ -47,11 +51,10 @@ public class Game extends PApplet {
 
 
     public void settings() {
-        /*Thread playerOneThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        if (AbsolutePathToPlayer2Brain!=null) {
+            Thread playerOneThread = new Thread(() -> {
                 try {
-                    playerAi(null,1);
+                    playerAi(Paths.get(AbsolutePathToPlayer2Brain),1);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (AWTException e) {
@@ -59,22 +62,23 @@ public class Game extends PApplet {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            }
-        });
-        playerOneThread.start();*/
-        Thread playerTwoThread = new Thread(() -> {
-            try {
-                playerAi(Paths.get("AAA"),0);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (AWTException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        playerTwoThread.start();
-
+            });
+            playerOneThread.start();
+        }
+        if (AbsolutePathToPlayer1Brain!=null) {
+            Thread playerTwoThread = new Thread(() -> {
+                try {
+                    playerAi(Paths.get(AbsolutePathToPlayer1Brain), 0);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (AWTException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            playerTwoThread.start();
+        }
         size(dimX, dimY);
         int[] redColor = {160, 20, 10};
         int[] blueColor = {5, 5, 120};
@@ -86,6 +90,14 @@ public class Game extends PApplet {
         if (!simulationStop) {
             if(ChronoUnit.SECONDS.between(startTime,Instant.now())>timeLimit) {
                 simulationStop=true;
+                SwingUtilities.invokeLater(() -> {
+                    String finalText = "WINNER: DRAW\n";
+                    finalText+= "WAY OF VICTORY: TIME LIMIT\n";
+                    finalText+="TIME: "+((float)ChronoUnit.MILLIS.between(startTime,Instant.now()))/1000+"s\n";
+                    finalText+="TOTAL BULLETS SHOT BY P1: "+totalBullet1+"\n";
+                    finalText+="TOTAL BULLETS SHOT BY P2: "+totalBullet2+"\n";
+                    new TextDrawer(finalText).setVisible(true);
+                });
             }
             background(255, 255, 255);
             for (Bullet b : bullets) {
@@ -106,8 +118,16 @@ public class Game extends PApplet {
                 if (res != null) {
                     simulationStop=true;
                     SwingUtilities.invokeLater(() -> {
-                        String finalText = "WINNER: PLAYER";
-                        new TextDrawer("GAME OVER").setVisible(true);
+                        String finalText = "WINNER: PLAYER"+(2- tank.getId())+"\n";
+                        if (res.getOwner().getId()==tank.getId()) {
+                            finalText+= "WAY OF VICTORY: SUICIDE\n";
+                        } else {
+                            finalText+= "WAY OF VICTORY: MURDER\n";
+                        }
+                        finalText+="TIME: "+((float)ChronoUnit.MILLIS.between(startTime,Instant.now()))/1000+"s\n";
+                        finalText+="TOTAL BULLETS SHOT BY P1: "+totalBullet1+"\n";
+                        finalText+="TOTAL BULLETS SHOT BY P2: "+totalBullet2+"\n";
+                        new TextDrawer(finalText).setVisible(true);
                     });
                 }
                 tank.update(1, myLevel);
@@ -120,6 +140,9 @@ public class Game extends PApplet {
             ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
             if (!tempNewBullets.isEmpty()) {
                 for (Bullet b : tempNewBullets) {
+                    if (b == null) {
+                        continue;
+                    }
                     int count= (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
                     boolean canShoot = true;
                     if (b.getOwner().getId()==0 && ChronoUnit.SECONDS.between(LastBullet0,Instant.now())<0.2) {
@@ -131,8 +154,10 @@ public class Game extends PApplet {
                         bullets.add(b);
                         if (b.getOwner().getId()==0) {
                             LastBullet0 = Instant.now();
+                            totalBullet1++;
                         } else {
                             LastBullet1 = Instant.now();
+                            totalBullet2++;
                         }
 
                     }
@@ -205,10 +230,10 @@ public class Game extends PApplet {
                 tanks.get(0).left();
                 break;
             case 'q':
-                bullets.add(tanks.get(0).fireBullet());
+                newBullets.add(tanks.get(0).fireBullet());
                 break;
             case ENTER:
-                bullets.add(tanks.get(1).fireBullet());
+                newBullets.add(tanks.get(1).fireBullet());
                 break;
             case CODED:
                 switch (keyCode) {
@@ -282,8 +307,6 @@ public class Game extends PApplet {
         startTime=Instant.now();
         LevelTypes.setDimensions(dimX,dimY);
         String wallsChoice = "1";
-        String AbsolutePathToPlayer1Brain = null;
-        String AbsolutePathToPlayer2Brain = null;
         Path resultsOutputFile = Paths.get("DefaultResultFile");
 
 
@@ -313,6 +336,8 @@ public class Game extends PApplet {
                 } catch (Throwable ignored){}
             }
         }
+        walls = LevelTypes.getWallBlueprint(Integer.parseInt(wallsChoice));
+        myLevel = new Level(walls);
         PApplet.main("proc.sketches.Game");
     }
 

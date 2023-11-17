@@ -1,7 +1,6 @@
 package HardCodedPlayer;
 
 import AiPlayer.AiOutput;
-import AiPlayer.GameState;
 import proc.sketches.Game;
 import proc.sketches.Tank;
 
@@ -17,11 +16,18 @@ public class HardCodedPlayerByMisko {
     int lastMovement=0;
     int lastX = 0;
     int lastY = 0;
+    int playerId;
+
+    public HardCodedPlayerByMisko(int GRID_COMPLEXITY, int playerId) {
+        this.GRID_COMPLEXITY = GRID_COMPLEXITY;
+        this.playerId = playerId;
+    }
+
     ArrayList<Point> allDestinations = generateAllDestinations();
-    public AiOutput makeAction(GameState state) {
+    public AiOutput makeAction() {
         lastMovement++;
-        Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
-        Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
+        Tank myTank = Game.tanks.get(playerId);
+        Tank otherTank = Game.tanks.get(Math.abs(1-playerId));
          if(aimedAtEnemy()) {
             chosenDestination=0;
             chosenAngle = null;
@@ -104,7 +110,6 @@ public class HardCodedPlayerByMisko {
                 result.add(p);
             }
         }
-        System.out.println(result);
         return result;
     }
     private ArrayList<Point> generateOkayishDestinations(Tank myThank) {
@@ -114,7 +119,6 @@ public class HardCodedPlayerByMisko {
                 result.add(p);
             }
         }
-        System.out.println("OK: "+result);
         return result;
     }
 
@@ -152,8 +156,8 @@ public class HardCodedPlayerByMisko {
     }
 
     private boolean couldAimAtEnemy() {
-        Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
-        Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
+        Tank myTank = Game.tanks.get(playerId);
+        Tank otherTank = Game.tanks.get(Math.abs(1-playerId));
         if (Game.aCanSeeB(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())) {
             return true;
         }
@@ -161,8 +165,8 @@ public class HardCodedPlayerByMisko {
     }
 
     private boolean aimedAtEnemy() {
-        Tank myTank = Game.tanks.get(Game.hardcodedPlayerId);
-        Tank otherTank = Game.tanks.get(Math.abs(1-Game.hardcodedPlayerId));
+        Tank myTank = Game.tanks.get(playerId);
+        Tank otherTank = Game.tanks.get(Math.abs(1-playerId));
         if (Math.abs(Game.calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())-myTank.getAngle())<0.04f
         && Game.aCanSeeB(myTank.getPosX(),myTank.getPosY(),otherTank.getPosX(),otherTank.getPosY())) {
             return true;

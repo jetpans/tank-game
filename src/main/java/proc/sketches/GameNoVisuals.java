@@ -60,6 +60,9 @@ public class GameNoVisuals extends Game {
         ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
         if (!tempNewBullets.isEmpty()) {
             for (Bullet b : tempNewBullets) {
+                if (b == null) {
+                    continue;
+                }
                 int count= (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
                 boolean canShoot = true;
                 if (b.getOwner().getId()==0 && ChronoUnit.SECONDS.between(LastBullet0,Instant.now())<0.2) {
