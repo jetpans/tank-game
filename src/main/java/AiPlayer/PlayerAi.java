@@ -26,8 +26,7 @@ public class PlayerAi {
         } catch (FileNotFoundException e) {
             playerBrain=null;
         }
-        String firstLine = brTest .readLine();
-        System.out.println("Found");
+        String firstLine = brTest.readLine();
         //TODO: if else --> way to read and save each type of brain
         PlayerAi playerAi = new PlayerAi();
         playerAi.type="DUMMY";
@@ -36,7 +35,6 @@ public class PlayerAi {
             return playerAi;
         }
         if ("HARDCODED MISKO".equals(firstLine)) {
-            System.out.println("Found");
             playerAi.type = "HARDCODED";
             playerAi.hardCode = new HardCodedPlayerByMisko(20,id);
         }

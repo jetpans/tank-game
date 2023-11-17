@@ -17,9 +17,6 @@ import java.util.ArrayList;
 
 public class GameNoVisuals extends Game {
     public static String winner =null;
-    public static final int dimX = 1000;
-    public static final int dimY = 1000;
-    public static ArrayList<Tank> tanks = new ArrayList<>();
     public static ArrayList<Bullet> bullets = new ArrayList<>();
     public static ArrayList<Bullet> deadBullets = new ArrayList<>();
     public static ArrayList<Bullet> newBullets = new ArrayList<>();
@@ -29,9 +26,6 @@ public class GameNoVisuals extends Game {
     public static int bulletsShot1 = 0;
     public static int bulletsShot2 = 0;
     public static String wayOfVictory = "DRAW";
-
-    public static Wall[] walls;
-    public static Level myLevel;
 
     public static void updateGame() {
         for (Bullet b : bullets) {
@@ -56,6 +50,7 @@ public class GameNoVisuals extends Game {
                     wayOfVictory = "MURDER";
                 }
             }
+            tank.update(1, myLevel);
         }
         ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
         if (!tempNewBullets.isEmpty()) {
@@ -94,7 +89,7 @@ public class GameNoVisuals extends Game {
         String wallsChoice = "1";
         String AbsolutePathToPlayer1Brain = null;
         String AbsolutePathToPlayer2Brain = null;
-        Path resultsOutputFile = Paths.get("DefaultResultFile");
+        Path resultsOutputFile = Paths.get("DefaultResultFile").toAbsolutePath();
         Integer timeLimit = 100000;
         //1000 unit in a real game would be around 5 seconds
         // >>>>!!!!!ESTIMATED NA TEMELJU 2 POKUSAJE, PLS FORGIVE ME...I'M ONLY HUMAN
@@ -258,14 +253,6 @@ public class GameNoVisuals extends Game {
         }
     }
 
-    public static boolean aCanSeeB(float x1,float y1,float x2,float y2) {
-        boolean result= true;
-    for (Wall w: walls) {
-        result = result && !checkIfLinesIntersect(x1,x2,y1,y2,w.getX1(),w.getX2(),w.getY1(),w.getY2());
-    }
-    return result;
-    }
-
     public static boolean checkIfLinesIntersect(float x1, float x2, float y1, float y2,
                              float pi1, float pi2, float qi1, float qi2) {
         Coordinate p1 = new Coordinate(x1, y1);
@@ -302,10 +289,4 @@ public class GameNoVisuals extends Game {
         return distance;
     }
 
-    public static double calculateAngleFromXAxis(double x1, double y1, double x2, double y2) {
-        // Calculate the angle using arctangent
-        double angle = Math.atan2(y2 - y1, x2 - x1);
-
-        return angle;
     }
-}
