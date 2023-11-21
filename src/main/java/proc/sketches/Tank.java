@@ -68,7 +68,6 @@ public class Tank extends PApplet {
             if (t == CollisionType.X || t == CollisionType.TOTAL) {
                 this.posX = oldPosX;
             }
-
         }
         this.posY += deltaY;
         for (Wall w : level.getWalls()) {
@@ -76,7 +75,6 @@ public class Tank extends PApplet {
             if (t == CollisionType.Y || t == CollisionType.TOTAL) {
                 this.posY = oldPosY;
             }
-
         }
 
         // Update the angle based on angular velocity

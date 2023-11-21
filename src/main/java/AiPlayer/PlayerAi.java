@@ -1,6 +1,7 @@
 package AiPlayer;
 
 import HardCodedPlayer.HardCodedPlayerByMisko;
+import NeuralNetwork.Network;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,6 +16,7 @@ public class PlayerAi {
     HardCodedPlayerByMisko hardCode;
 
     //here are neural network parameters
+    Network neuralNetwork;
 
     //TODO here add a new brain type and its parameters
 
@@ -27,6 +29,7 @@ public class PlayerAi {
             playerBrain=null;
         }
         String firstLine = brTest.readLine();
+
         //TODO: if else --> way to read and save each type of brain
         PlayerAi playerAi = new PlayerAi();
         playerAi.type="DUMMY";
@@ -37,6 +40,9 @@ public class PlayerAi {
         if ("HARDCODED MISKO".equals(firstLine)) {
             playerAi.type = "HARDCODED";
             playerAi.hardCode = new HardCodedPlayerByMisko(20,id);
+        } else if ("NN".equals(firstLine)) {
+            playerAi.type = "NN";
+            playerAi.neuralNetwork = new Network(playerBrain.toFile());
         }
         return playerAi;
     }
@@ -50,6 +56,8 @@ public class PlayerAi {
             return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
         } else if (type.equals("HARDCODED")) {
             return hardCode.makeAction();
+        } else if (type.equals("NN")) {
+            return neuralNetwork.makeAction(currentGameState);
         }
         return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
     }

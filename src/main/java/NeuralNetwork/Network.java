@@ -1,4 +1,8 @@
 package NeuralNetwork;
+import AiPlayer.AiOutput;
+import AiPlayer.GameState;
+
+import java.io.*;
 import java.util.*;
 
 public class Network
@@ -9,68 +13,54 @@ public class Network
     Layer finalLayer;
     double fitness;
 
+    public Network(File file) {
+        BufferedReader brTest = null;
+        try {
+            brTest = new BufferedReader(new FileReader(file));
+            String line = brTest.readLine();
+            String numOfLayers = brTest.readLine();
+            brTest.readLine();
 
-    public Network(ArrayList<Layer> layers, int inputDimension, int outcomeDimension,Layer finalLayer) {
-       this.layers=new ArrayList<>();
-        for (Layer layer : layers)
-        {
-            this.layers.add(new Layer(layer.getInputDimension(), layer.getNumberOfNeurons(), layer.getNeuronValues().copy()));
-        }
-        this.finalLayer=new Layer(finalLayer.getInputDimension(), finalLayer.getNumberOfNeurons(), finalLayer.getNeuronValues().copy());
-        this.inputDimension = inputDimension;
-        this.outcomeDimension = outcomeDimension;
-    }
-
-    public Network(int inputDimension, int outcomeDimension,ArrayList<Integer>RandomisedLayersDimensions) {
-        this.inputDimension = inputDimension;
-        this.outcomeDimension = outcomeDimension;
-        this.layers=new ArrayList<>();
-        int lastInnerLayerDim=createRandomLayers(RandomisedLayersDimensions);
-        createFinalLayer(lastInnerLayerDim);
-
-    }
-
-    private int createRandomLayers(ArrayList<Integer>RandomisedLayersDimensions)
-    {
-        int lastInnerLayerDim=inputDimension;
-        for(int i=0;i<RandomisedLayersDimensions.size();i++)
-        {
-            lastInnerLayerDim=RandomisedLayersDimensions.get(i);
-            int input;
-            if(i==0)
-                input=inputDimension;
-            else
-                input=RandomisedLayersDimensions.get(i-1);
-            double[][] wMatrix=new double[RandomisedLayersDimensions.get(i)][input+1];
-            Random b=new Random();
-            for(int j=0;j<RandomisedLayersDimensions.get(i);j++)
-            {
-                for(int k=0;k<=input;k++)
-                {
-                    wMatrix[j][k]=(b.nextGaussian()*0.01);
+            layers = new ArrayList<>();
+            for (int i = 0; i<Integer.parseInt(numOfLayers)-1; i++) {
+                List<String> matrica = new ArrayList<>();
+                while(!(line= brTest.readLine()).equals("#####")) {
+                    matrica.add(line);
+                }
+                double[][] fakeMatrix = new double[matrica.size()][matrica.get(0).split(" ").length];
+                for (int j= 0; j< matrica.size();j++) {
+                    double[] linija = Arrays.stream(matrica.get(j).split(" "))
+                            .mapToDouble(Double::parseDouble)
+                            .toArray();
+                    for (int k= 0;k<linija.length;k++) {
+                        fakeMatrix[j][k] = linija[k];
+                    }
+                }
+                RealMatrix matrix = new RealMatrix(fakeMatrix);
+                layers.add(new Layer(matrix.getColumnDimension(), matrix.getRowDimension(), matrix));
+            }
+            List<String> matrica = new ArrayList<>();
+            while(!(line= brTest.readLine()).equals("#####")) {
+                matrica.add(line);
+            }
+            double[][] fakeMatrix = new double[matrica.size()][matrica.get(0).split(" ").length];
+            for (int j= 0; j< matrica.size();j++) {
+                double[] linija = Arrays.stream(matrica.get(j).split(" "))
+                        .mapToDouble(Double::parseDouble)
+                        .toArray();
+                for (int k= 0;k<linija.length;k++) {
+                    fakeMatrix[j][k] = linija[k];
                 }
             }
-            this.layers.add(new Layer(input,RandomisedLayersDimensions.get(i),new RealMatrix(wMatrix)));
-        }
-        return lastInnerLayerDim;
-    }
-
-    private void createFinalLayer(int lastInnerLayerDim)
-    {
-        double[][] wMatrix=new double[outcomeDimension][lastInnerLayerDim+1];
-        Random b=new Random();
-        for(int j=0;j<outcomeDimension;j++)
-        {
-            for(int k=0;k<=lastInnerLayerDim;k++)
-            {
-                wMatrix[j][k]=(b.nextGaussian()*0.01 );
-            }
-        }
-        this.finalLayer=new Layer(lastInnerLayerDim,outcomeDimension,new RealMatrix(wMatrix));
+            RealMatrix matrix = new RealMatrix(fakeMatrix);
+            finalLayer = new Layer(matrix.getColumnDimension(), matrix.getRowDimension(), matrix);
+            outcomeDimension = finalLayer.getNumberOfNeurons();
+            inputDimension = layers.get(0).getInputDimension();
+        } catch (IOException e) {}
 
     }
 
-    ArrayList<Double> predict(ArrayList<Double> x)
+    public ArrayList<Double> predict(ArrayList<Double> x)
     {
         double[][] xDArray=new double[x.size()+1][1];
         for(int i=0;i<x.size();i++)
@@ -161,13 +151,12 @@ public class Network
     public int hashCode() {
         return Objects.hash(getLayers(), getInputDimension(), getOutcomeDimension(), getFinalLayer(), getFitness());
     }
-}
 
-class NetworkComparator implements Comparator<Network>
-{
-    @Override
-    public int compare(Network o1, Network o2)
-    {
-        return -Double.compare(o1.getFitness(),o2.getFitness());
+    public AiOutput makeAction(GameState currentGameState) {
+        /*
+        todo : make transmision from state to input
+        todo : make transmision from output to Action
+         */
+        return null;
     }
 }

@@ -20,7 +20,6 @@ public class GameNoVisuals extends Game {
     public static ArrayList<Bullet> bullets = new ArrayList<>();
     public static ArrayList<Bullet> deadBullets = new ArrayList<>();
     public static ArrayList<Bullet> newBullets = new ArrayList<>();
-    public static Integer hardcodedPlayerId = null;
     public static Instant LastBullet0 = Instant.now();
     public static Instant LastBullet1 = Instant.now();
     public static int bulletsShot1 = 0;
@@ -92,6 +91,7 @@ public class GameNoVisuals extends Game {
         Path resultsOutputFile = Paths.get("DefaultResultFile").toAbsolutePath();
         Integer timeLimit = 100000;
         //1000 unit in a real game would be around 5 seconds
+        //1M units is around 1.5seconds for a medium NN
         // >>>>!!!!!ESTIMATED NA TEMELJU 2 POKUSAJE, PLS FORGIVE ME...I'M ONLY HUMAN
 
 
@@ -227,7 +227,11 @@ public class GameNoVisuals extends Game {
                 byte[] strToBytes = str.getBytes();
                 outputStream.write(strToBytes);
 
+
                 outputStream.close();
+                /*
+                TODO dok se koristiti za evoluiranje neceg, zakomentirati ispis u liniji ispod
+                 */
                 System.out.println(str);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
