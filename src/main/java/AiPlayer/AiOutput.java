@@ -11,6 +11,9 @@ public class AiOutput {
         LinearDecision = linearDecision;
     }
 
+    public AiOutput() {
+    }
+
     public String getFireDecision() {
         return FireDecision;
     }

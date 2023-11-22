@@ -91,12 +91,12 @@ public class Network
 
     private Double customFinalFunction(double v)
     {
-        return  v;
+        return 1-(2*(1d/(1d+Math.exp(0-v))));
     }
 
     private double customFunction(double v)
     {
-        return (1d/(1d+Math.exp(0-v)));
+        return 1-(2*(1d/(1d+Math.exp(0-v))));
     }
 
     public ArrayList<Layer> getLayers() {
@@ -152,11 +152,52 @@ public class Network
         return Objects.hash(getLayers(), getInputDimension(), getOutcomeDimension(), getFinalLayer(), getFitness());
     }
 
-    public AiOutput makeAction(GameState currentGameState) {
-        /*
-        todo : make transmision from state to input
-        todo : make transmision from output to Action
-         */
-        return null;
+    public AiOutput makeAction(GameState st) {
+        ArrayList<Double> ulaz = new ArrayList<>();
+        ulaz.add(st.getAngleAtEnemy());
+        ulaz.add(st.getCanSeeEnemy());
+        ulaz.add(st.getDistanceToEnemy());
+
+        ulaz.add(st.getDistanceFront());
+        ulaz.add(st.getSeesFront());
+        ulaz.add(st.getDistanceBack());
+        ulaz.add(st.getSeesBack());
+        ulaz.add(st.getDistanceLeft());
+        ulaz.add(st.getSeesLeft());
+        ulaz.add(st.getDistanceRight());
+        ulaz.add(st.getSeesRight());
+
+        ulaz.add(st.getAngleSeesObstacle());
+        ulaz.add(st.getEnemySeesObstacle());
+
+
+        ulaz.add(Double.valueOf(st.getBulletsFront()));
+        ulaz.add(Double.valueOf(st.getBulletsBack()));
+        ulaz.add(Double.valueOf(st.getBulletsLeft()));
+        ulaz.add(Double.valueOf(st.getBulletsRight()));
+
+        List<Double> izlaz = this.predict(ulaz);
+
+        AiOutput odluka = new AiOutput();
+
+        odluka.setFireDecision(izlaz.get(0)>0 ? "FIRE" : "NO_FIRE");
+
+        if (izlaz.get(1)<-0.2) {
+            odluka.setAngularDecision("LEFT");
+        } else if (izlaz.get(1)>0.2) {
+            odluka.setAngularDecision("RIGHT");
+        } else {
+            odluka.setAngularDecision("STOP_ANGULAR");
+        }
+
+        if (izlaz.get(2)<-0.2) {
+            odluka.setAngularDecision("FORWARD");
+        } else if (izlaz.get(2)>0.2) {
+            odluka.setAngularDecision("BACKWARD");
+        } else {
+            odluka.setAngularDecision("STOP_LINEAR");
+        }
+
+        return odluka;
     }
 }

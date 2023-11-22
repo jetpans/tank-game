@@ -419,41 +419,6 @@ public class Game extends PApplet {
         return closest;
     }
 
-    void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
-        PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
-        while (!simulationStop) {
-            sleep(1);
-            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
-            switch (action.getFireDecision()) {
-                case "FIRE":
-                    newBullets.add(tanks.get(tankId).fireBullet());
-                    break;
-            }
-            switch (action.getLinearDecision()) {
-                case "FORWARD":
-                    tanks.get(tankId).forward();
-                    break;
-                case "BACKWARD":
-                    tanks.get(tankId).backward();
-                    break;
-                case "STOP_LINEAR":
-                    tanks.get(tankId).stop();
-                    break;
-            }
-            switch (action.getAngularDecision()) {
-                case "RIGHT":
-                    tanks.get(tankId).right();
-                    break;
-                case "LEFT":
-                    tanks.get(tankId).left();
-                    break;
-                case "STOP_ANGULAR":
-                    tanks.get(tankId).angleStop();
-                    break;
-            }
-        }
-    }
-
     public static boolean aCanSeeB(float x1,float y1,float x2,float y2) {
         boolean result= true;
     for (Wall w: walls) {
@@ -536,4 +501,40 @@ public class Game extends PApplet {
 
         return angle;
     }
+
+    void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
+        PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
+        while (!simulationStop) {
+            sleep(1);
+            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
+            switch (action.getFireDecision()) {
+                case "FIRE":
+                    newBullets.add(tanks.get(tankId).fireBullet());
+                    break;
+            }
+            switch (action.getLinearDecision()) {
+                case "FORWARD":
+                    tanks.get(tankId).forward();
+                    break;
+                case "BACKWARD":
+                    tanks.get(tankId).backward();
+                    break;
+                case "STOP_LINEAR":
+                    tanks.get(tankId).stop();
+                    break;
+            }
+            switch (action.getAngularDecision()) {
+                case "RIGHT":
+                    tanks.get(tankId).right();
+                    break;
+                case "LEFT":
+                    tanks.get(tankId).left();
+                    break;
+                case "STOP_ANGULAR":
+                    tanks.get(tankId).angleStop();
+                    break;
+            }
+        }
+    }
+
 }
