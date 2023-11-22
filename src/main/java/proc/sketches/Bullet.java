@@ -4,9 +4,12 @@ package proc.sketches;
 public class Bullet {
     private float posX;
     private float posY;
+
+    private float lastX;
+    private float lastY;
     public static final int MAX_LIFE = 300;
     private int currentLife = 0;
-    public static float VELOCITY = 10;
+    public static float VELOCITY = 8;
     public static float SIZE = 10;
     private float angle;
     private float velY;
@@ -17,6 +20,8 @@ public class Bullet {
     public Bullet(float posX, float posY, float angle, Tank owner) {
         this.posX = posX;
         this.posY = posY;
+        this.lastX = owner.getPosX();
+        this.lastY = owner.getPosY();
         this.velY = (float) (VELOCITY * Math.sin(angle));
         this.velX = (float) (VELOCITY * Math.cos(angle));
         this.owner = owner;
@@ -54,6 +59,8 @@ public class Bullet {
         }
         deltaX = velX * timeDelta;
         deltaY = velY * timeDelta;
+        this.lastX=this.posX;
+        this.lastY=this.posY;
         this.posX += deltaX;
         this.posY += deltaY;
     }
@@ -79,4 +86,19 @@ public class Bullet {
         return currentLife >= MAX_LIFE;
     }
 
+    public float getLastX() {
+        return lastX;
+    }
+
+    public void setLastX(float lastX) {
+        this.lastX = lastX;
+    }
+
+    public float getLastY() {
+        return lastY;
+    }
+
+    public void setLastY(float lastY) {
+        this.lastY = lastY;
+    }
 }

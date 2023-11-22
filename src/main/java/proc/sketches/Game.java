@@ -3,6 +3,7 @@ package proc.sketches;
 import AiPlayer.AiOutput;
 import AiPlayer.GameState;
 import AiPlayer.PlayerAi;
+import HardCodedPlayer.Point;
 import org.locationtech.jts.algorithm.LineIntersector;
 import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Coordinate;
@@ -83,7 +84,7 @@ public class Game extends PApplet {
         int[] redColor = {160, 20, 10};
         int[] blueColor = {5, 5, 120};
         tanks.add(new Tank(dimX / 3, dimY / 3, 0, redColor,0));
-        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor,1));
+        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI/2, blueColor,1));
     }
 
     public void draw() {
@@ -337,11 +338,87 @@ public class Game extends PApplet {
     }
 
     static GameState getCurrentGameState(Integer tankId) {
-        /*
-        TODO: Generate Current game state for input in AI
-         */
-        return new GameState();
+        Tank myTank = tanks.get(tankId);
+        Tank other = tanks.get(1-tankId);
+
+        GameState state = new GameState();
+        //direct sight
+        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),other.getPosX(),other.getPosY()));
+        state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(),myTank.getPosY(),other.getPosX(),other.getPosY()) ? 1D : -1D);
+        state.setDistanceToEnemy(calculateDistance(myTank.getPosX(),myTank.getPosY(),other.getPosX(),other.getPosY()));
+
+        //4directions + bonus for front
+        Point closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle());
+        state.setDistanceFront(calculateDistance(myTank.getPosX(),myTank.getPosY(),closest.getX(), closest.getY()));
+        state.setSeesFront(aCanSeeB(closest.getX(),closest.getY(),other.getPosX(),other.getPosY()) ? 1D : -1D);
+
+        Double wallAngle= (double) 0;
+        if (walls[closest.getOrigin()].getX1() == walls[closest.getOrigin()].getX2()) {
+            wallAngle=Math.PI;
+        }
+        state.setAngleSeesObstacle(myTank.getAngle()-wallAngle);
+        state.setEnemySeesObstacle(wallAngle-calculateAngleFromXAxis(other.getPosX(),other.getPosY(),closest.getX(), closest.getY()));
+
+        closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle()+(Math.PI));
+        state.setDistanceBack(calculateDistance(myTank.getPosX(),myTank.getPosY(),closest.getX(), closest.getY()));
+        state.setSeesBack(aCanSeeB(closest.getX(),closest.getY(),other.getPosX(),other.getPosY()) ? 1D : -1D);
+
+        closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle()-(Math.PI/2));
+        state.setDistanceLeft(calculateDistance(myTank.getPosX(),myTank.getPosY(),closest.getX(), closest.getY()));
+        state.setSeesLeft(aCanSeeB(closest.getX(),closest.getY(),other.getPosX(),other.getPosY()) ? 1D : -1D);
+
+        closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle()+(Math.PI/2));
+        state.setDistanceRight(calculateDistance(myTank.getPosX(),myTank.getPosY(),closest.getX(), closest.getY()));
+        state.setSeesRight(aCanSeeB(closest.getX(),closest.getY(),other.getPosX(),other.getPosY()) ? 1D : -1D);
+
+        Double radius = (double) Tank.TANK_SIZE*1.75;
+
+        for (Bullet bullet : bullets) {
+            if (calculateDistance(myTank.getPosX(),myTank.getPosY(),bullet.getPosX(),bullet.getPosY())<= radius) {
+                if(calculateDistance(myTank.getPosX(),myTank.getPosY(),bullet.getPosX(),bullet.getPosY()) <= calculateDistance(myTank.getPosX(),myTank.getPosY(),bullet.getLastX(),bullet.getLastY())) {
+                    Double tempAngle= myTank.getAngle()<0 ? myTank.getAngle()+(2*Math.PI) : myTank.getAngle();
+                    Double tempAngleToBullet = calculateAngleFromXAxis(myTank.getPosX(),myTank.getPosY(),bullet.getPosX(),bullet.getPosY());
+                    tempAngleToBullet = tempAngleToBullet<0 ? tempAngleToBullet+(2*Math.PI) : tempAngleToBullet;
+
+                    if(Math.abs(tempAngle-tempAngleToBullet)<=Math.PI/4 || Math.abs(tempAngle-tempAngleToBullet)>=7*Math.PI/4) {
+                        state.setBulletsFront(state.getBulletsFront()+1);
+                    } else if(Math.abs(((3*Math.PI/2+tempAngle)%(2*Math.PI))-tempAngleToBullet)<=Math.PI/4 || Math.abs(((3*Math.PI/2+tempAngle)%(2*Math.PI))-tempAngleToBullet)>=7*Math.PI/4) {
+                        state.setBulletsLeft(state.getBulletsLeft()+1);
+                    } else if(Math.abs(((Math.PI/2+tempAngle)%(2*Math.PI))-tempAngleToBullet)<=Math.PI/4 || Math.abs(((Math.PI/2+tempAngle)%(2*Math.PI))-tempAngleToBullet)>=7*Math.PI/4) {
+                        state.setBulletsRight(state.getBulletsRight()+1);
+                    } else if(Math.abs(((Math.PI+tempAngle)%(2*Math.PI))-tempAngleToBullet)<=Math.PI/4 || Math.abs(((Math.PI+tempAngle)%(2*Math.PI))-tempAngleToBullet)>=7*Math.PI/4) {
+                        state.setBulletsBack(state.getBulletsBack()+1);
+                    }
+
+                }
+            }
+        }
+
+
+        return state;
     }
+
+    public static Point getDotRemovedForXinDirectionY(Double x,Double y, Integer X,Double angleY) {
+        return new Point((int) (x + X * Math.cos(angleY)), (int) (y + X * Math.sin(angleY)), 100);
+    }
+
+    public static Point getClosestPointInDirectionY (Double x,Double y,Double angleY) {
+        Point outThere = getDotRemovedForXinDirectionY(x,y,dimX*2,angleY);
+        Point closest = null;
+        for (int i= 0; i<walls.length;i++) {
+            Wall w = walls[i];
+            if (closest == null) {
+                closest = whereLinesIntersect((float)(double) x,outThere.getX(),(float)(double) y,outThere.getY(),w.getX1(),w.getX2(),w.getY1(),w.getY2(),i);
+            } else {
+                Point temp = whereLinesIntersect((float)(double) x,outThere.getX(),(float)(double) y,outThere.getY(),w.getX1(),w.getX2(),w.getY1(),w.getY2(),i);
+                if (temp != null && calculateDistance(x,y,temp.getX(),temp.getY())<calculateDistance(x,y, closest.getX(), closest.getY())) {
+                    closest = temp;
+                }
+            }
+        }
+        return closest;
+    }
+
     void playerAi(Path playerBrain,Integer tankId) throws IOException, AWTException, InterruptedException {
         PlayerAi player = PlayerAi.loadFromFile(playerBrain,tankId);
         while (!simulationStop) {
@@ -407,6 +484,38 @@ public class Game extends PApplet {
         }
     }
 
+    public static Point whereLinesIntersect(float x1, float x2, float y1, float y2,
+                                                float pi1, float pi2, float qi1, float qi2,int walId) {
+        Coordinate p1 = new Coordinate(x1, y1);
+        Coordinate p2 = new Coordinate(x2, y2);
+
+        // Create line segment 2 with endpoints (0,2) and (2,0)
+        Coordinate q1 = new Coordinate(pi1, qi1);
+        Coordinate q2 = new Coordinate(pi2, qi2);
+
+        // Create LineIntersector
+        LineIntersector lineIntersector = new RobustLineIntersector();
+        lineIntersector.computeIntersection(p1, p2, q1, q2);
+
+        // Check if the line segments intersect
+        if (lineIntersector.hasIntersection()) {
+            Coordinate intersection = lineIntersector.getIntersection(0);
+            Point point = new Point((int) intersection.getX(), (int) intersection.getY(),walId);
+            if (point.getX()>x1) {
+                point.setX(point.getX()-2);
+            } else {
+                point.setX(point.getX()+2);
+            }
+            if (point.getY()>y1) {
+                point.setY(point.getY()-2);
+            } else {
+                point.setY(point.getY()+2);
+            }
+            return point;
+        } else {
+            return null;
+        }
+    }
     public static double calculateDistance(double x1, double y1, double x2, double y2) {
         // Calculate the squared differences
         double dx = x2 - x1;

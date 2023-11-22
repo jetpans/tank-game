@@ -23,12 +23,14 @@ public class PlayerAi {
 
     public static PlayerAi loadFromFile(Path playerBrain, int id) throws IOException {
         BufferedReader brTest = null;
+        String firstLine = null;
         try {
             brTest = new BufferedReader(new FileReader(playerBrain.toFile()));
+            firstLine = brTest.readLine();
         } catch (FileNotFoundException e) {
             playerBrain=null;
         }
-        String firstLine = brTest.readLine();
+        
 
         //TODO: if else --> way to read and save each type of brain
         PlayerAi playerAi = new PlayerAi();
@@ -36,8 +38,7 @@ public class PlayerAi {
         if(playerBrain==null) {
             playerAi.type="DUMMY";
             return playerAi;
-        }
-        if ("HARDCODED MISKO".equals(firstLine)) {
+        } else if ("HARDCODED MISKO".equals(firstLine)) {
             playerAi.type = "HARDCODED";
             playerAi.hardCode = new HardCodedPlayerByMisko(20,id);
         } else if ("NN".equals(firstLine)) {
