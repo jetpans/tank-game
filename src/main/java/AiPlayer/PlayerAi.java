@@ -1,5 +1,6 @@
 package AiPlayer;
 
+import CGPModel.CGPModel;
 import HardCodedPlayer.HardCodedPlayerByMisko;
 import NeuralNetwork.Network;
 
@@ -18,6 +19,7 @@ public class PlayerAi {
     //here are neural network parameters
     Network neuralNetwork;
 
+    CGPModel modelCGP;
     //TODO here add a new brain type and its parameters
 
 
@@ -35,6 +37,7 @@ public class PlayerAi {
         //TODO: if else --> way to read and save each type of brain
         PlayerAi playerAi = new PlayerAi();
         playerAi.type="DUMMY";
+        System.out.println("MAKING PLAYER");
         if(playerBrain==null) {
             playerAi.type="DUMMY";
             return playerAi;
@@ -44,6 +47,9 @@ public class PlayerAi {
         } else if ("NN".equals(firstLine)) {
             playerAi.type = "NN";
             playerAi.neuralNetwork = new Network(playerBrain.toFile());
+        }else if (firstLine.equals("CGP")){
+            playerAi.type = "CGP";
+            playerAi.modelCGP = CGPModel.buildSingleFromFile(playerBrain.toString());
         }
         return playerAi;
     }
@@ -59,6 +65,8 @@ public class PlayerAi {
             return hardCode.makeAction();
         } else if (type.equals("NN")) {
             return neuralNetwork.makeAction(currentGameState);
+        }else if (type.equals("CGP")){
+            return modelCGP.makeAction(currentGameState);
         }
         return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
     }

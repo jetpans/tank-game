@@ -44,7 +44,7 @@ public class GameState {
         this.seesLeft = seesLeft;
         this.seesRight = seesRight;
         this.angleSeesObstacle = angleSeesObstacle;
-        EnemySeesObstacle = enemySeesObstacle;
+        this.EnemySeesObstacle = enemySeesObstacle;
         this.bulletsFront = bulletsFront;
         this.bulletsBack = bulletsBack;
         this.bulletsLeft = bulletsLeft;
