@@ -15,10 +15,10 @@ public class Main {
         Instant start = Instant.now();
         Double b=0D;
         for (int i = 0; i<1000000;i++) {
-            b+=proba.predict(new ArrayList<>(Arrays.asList(0.1,0.1,0.1,0.1,0.1))).get(0);
+            b+=proba.predict(new ArrayList<>(Arrays.asList(0.1,0.1))).get(0);
         }
         Instant end = Instant.now();
         System.out.println(ChronoUnit.MILLIS.between(start,end));
-        System.out.println(ChronoUnit.MILLIS.between(realStart,end));
+        System.out.println(ChronoUnit.MILLIS.between(realStart,start));
     }
 }
