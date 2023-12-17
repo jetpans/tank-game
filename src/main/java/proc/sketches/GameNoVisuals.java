@@ -16,7 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class GameNoVisuals extends Game {
-    public static String winner =null;
+    public static String winner = null;
     public static ArrayList<Bullet> bullets = new ArrayList<>();
     public static ArrayList<Bullet> deadBullets = new ArrayList<>();
     public static ArrayList<Bullet> newBullets = new ArrayList<>();
@@ -42,8 +42,8 @@ public class GameNoVisuals extends Game {
         for (Tank tank : tanks) {
             Bullet res = tank.collideWithBullets(bullets);
             if (res != null) {
-                winner = "Player" + (2-tank.getId());
-                if (res.getOwner().getId()==tank.getId()) {
+                winner = "Player" + (2 - tank.getId());
+                if (res.getOwner().getId() == tank.getId()) {
                     wayOfVictory = "SUICIDE";
                 } else {
                     wayOfVictory = "MURDER";
@@ -57,16 +57,16 @@ public class GameNoVisuals extends Game {
                 if (b == null) {
                     continue;
                 }
-                int count= (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
+                int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
                 boolean canShoot = true;
-                if (b.getOwner().getId()==0 && ChronoUnit.SECONDS.between(LastBullet0,Instant.now())<0.2) {
-                    canShoot=false;
-                } else if(b.getOwner().getId()==1 && ChronoUnit.SECONDS.between(LastBullet1,Instant.now())<0.2) {
-                    canShoot=false;
+                if (b.getOwner().getId() == 0 && ChronoUnit.SECONDS.between(LastBullet0, Instant.now()) < 0.2) {
+                    canShoot = false;
+                } else if (b.getOwner().getId() == 1 && ChronoUnit.SECONDS.between(LastBullet1, Instant.now()) < 0.2) {
+                    canShoot = false;
                 }
-                if (count<5 && canShoot) {
+                if (count < 5 && canShoot) {
                     bullets.add(b);
-                    if (b.getOwner().getId()==0) {
+                    if (b.getOwner().getId() == 0) {
                         LastBullet0 = Instant.now();
                         bulletsShot1++;
                     } else {
@@ -84,7 +84,7 @@ public class GameNoVisuals extends Game {
 
     public static void main(String... args) {
 
-        LevelTypes.setDimensions(dimX,dimY);
+        LevelTypes.setDimensions(dimX, dimY);
         String wallsChoice = "1";
         String AbsolutePathToPlayer1Brain = null;
         String AbsolutePathToPlayer2Brain = null;
@@ -96,7 +96,7 @@ public class GameNoVisuals extends Game {
 
 
         //reading args
-        for (int i= 0; i<args.length;i++) {
+        for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--LevelChoice")) {
                 i++;
                 try {
@@ -118,7 +118,8 @@ public class GameNoVisuals extends Game {
                 i++;
                 try {
                     timeLimit = Integer.parseInt(args[i]);
-                } catch (Throwable ignored){}
+                } catch (Throwable ignored) {
+                }
             }
         }
         //starting the game simulation
@@ -137,12 +138,12 @@ public class GameNoVisuals extends Game {
             PlayerAi player0 = PlayerAi.loadFromFile(Paths.get(AbsolutePathToPlayer1Brain), 0);
             PlayerAi player1 = PlayerAi.loadFromFile(Paths.get(AbsolutePathToPlayer2Brain), 1);
 
-            int decisions=0;
+            int decisions = 0;
 
             while (winner == null) {
                 decisions++;
 
-                if (decisions>= timeLimit) {
+                if (decisions >= timeLimit) {
                     winner = "DRAW";
                 }
                 //get decision from P1
@@ -150,7 +151,7 @@ public class GameNoVisuals extends Game {
                 //Implement decision
                 switch (action0.getFireDecision()) {
                     case "FIRE":
-                        newBullets.add(tanks.get(0).fireBullet());
+                        newBullets.add(tanks.get(0).fireBullet(bullets));
                         break;
                 }
                 switch (action0.getLinearDecision()) {
@@ -181,7 +182,7 @@ public class GameNoVisuals extends Game {
                 //Implement decision
                 switch (action1.getFireDecision()) {
                     case "FIRE":
-                        newBullets.add(tanks.get(1).fireBullet());
+                        newBullets.add(tanks.get(1).fireBullet(bullets));
                         break;
                 }
                 switch (action1.getLinearDecision()) {
@@ -217,11 +218,11 @@ public class GameNoVisuals extends Game {
                 if (!Files.exists(resultsOutputFile)) {
                     Files.createFile(resultsOutputFile);
                 }
-                String str = "WINNER: "+winner+"\n";
-                str=str + "TOTAL DECISIONS MADE: "+decisions+"\n";
-                str=str+"TOTAL BULLETS SHOT BY PLAYER 1: " + bulletsShot1 +"\n";
-                str=str+"TOTAL BULLETS SHOT BY PLAYER 2: " + bulletsShot2 +"\n";
-                str=str+"WAY OF VICTORY: "+wayOfVictory +"\n";
+                String str = "WINNER: " + winner + "\n";
+                str = str + "TOTAL DECISIONS MADE: " + decisions + "\n";
+                str = str + "TOTAL BULLETS SHOT BY PLAYER 1: " + bulletsShot1 + "\n";
+                str = str + "TOTAL BULLETS SHOT BY PLAYER 2: " + bulletsShot2 + "\n";
+                str = str + "WAY OF VICTORY: " + wayOfVictory + "\n";
 
                 FileOutputStream outputStream = new FileOutputStream(resultsOutputFile.toFile());
                 byte[] strToBytes = str.getBytes();
@@ -238,14 +239,14 @@ public class GameNoVisuals extends Game {
             }
 
         } catch (Throwable e) {
-            System.out.println("ERROR OCCURRED: " + e );
+            System.out.println("ERROR OCCURRED: " + e);
             try {
                 Files.createDirectories(resultsOutputFile.getParent());
 
                 if (!Files.exists(resultsOutputFile)) {
                     Files.createFile(resultsOutputFile);
                 }
-                String str = "ERROR OCCURRED:" + e ;
+                String str = "ERROR OCCURRED:" + e;
                 FileOutputStream outputStream = new FileOutputStream(resultsOutputFile.toFile());
                 byte[] strToBytes = str.getBytes();
                 outputStream.write(strToBytes);
@@ -258,7 +259,7 @@ public class GameNoVisuals extends Game {
     }
 
     public static boolean checkIfLinesIntersect(float x1, float x2, float y1, float y2,
-                             float pi1, float pi2, float qi1, float qi2) {
+                                                float pi1, float pi2, float qi1, float qi2) {
         Coordinate p1 = new Coordinate(x1, y1);
         Coordinate p2 = new Coordinate(x2, y2);
 
@@ -293,4 +294,4 @@ public class GameNoVisuals extends Game {
         return distance;
     }
 
-    }
+}

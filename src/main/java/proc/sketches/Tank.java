@@ -30,7 +30,7 @@ public class Tank extends PApplet {
     public transient final float SPAWN_LOCATION_X;
     public transient final float SPAWN_LOCATION_Y;
 
-    public Tank(float posX, float posY, float angle, int[] color,int id) {
+    public Tank(float posX, float posY, float angle, int[] color, int id) {
         this.posX = posX;
         this.posY = posY;
         SPAWN_LOCATION_X = posX;
@@ -91,17 +91,18 @@ public class Tank extends PApplet {
         currentBulletTimeout -= 1;
 
         this.angle += (float) (this.angularVelocity * timeDelta);
-        this.angle = Float.parseFloat(String.valueOf(this.angle % (2*Math.PI)));
-        if (this.angle>Math.PI) {
-            this.angle = Float.parseFloat(String.valueOf( -2*Math.PI + this.angle));
-        } else if(this.angle<=-Math.PI) {
-            this.angle = Float.parseFloat(String.valueOf( 2*Math.PI + this.angle));
+        this.angle = Float.parseFloat(String.valueOf(this.angle % (2 * Math.PI)));
+        if (this.angle > Math.PI) {
+            this.angle = Float.parseFloat(String.valueOf(-2 * Math.PI + this.angle));
+        } else if (this.angle <= -Math.PI) {
+            this.angle = Float.parseFloat(String.valueOf(2 * Math.PI + this.angle));
         }
 
     }
 
 
-    public Bullet fireBullet() {
+    public Bullet fireBullet(ArrayList<Bullet> bullets) {
+
         Bullet b = new Bullet(this.posX, this.posY, this.angle, this);
         if (currentBulletTimeout > 0) {
             b.setCurrentLife(Bullet.MAX_LIFE);
