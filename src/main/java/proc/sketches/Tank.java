@@ -101,13 +101,15 @@ public class Tank extends PApplet {
     }
 
 
-    public Bullet fireBullet(ArrayList<Bullet> bullets) {
+    public Bullet fireBullet() {
 
         Bullet b = new Bullet(this.posX, this.posY, this.angle, this);
         if (currentBulletTimeout > 0) {
             b.setCurrentLife(Bullet.MAX_LIFE);
+            System.out.println("Fired max life bullet.");
             return b;
         }
+        System.out.println("Fired standard bullet");
         currentBulletTimeout = BULLET_TIMEOUT;
         return b;
     }

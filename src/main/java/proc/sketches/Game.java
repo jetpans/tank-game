@@ -1,14 +1,5 @@
 package proc.sketches;
 
-import com.google.gson.*;
-import processing.core.PApplet;
-
-import java.awt.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import AiPlayer.AiOutput;
 import AiPlayer.GameState;
 import AiPlayer.PlayerAi;
@@ -61,22 +52,6 @@ public class Game extends PApplet {
 
 
     public void settings() {
-        Thread clientThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    serverCommunicationLoop();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        clientThread.start();
-
         if (AbsolutePathToPlayer2Brain != null) {
             Thread playerOneThread = new Thread(() -> {
                 try {
@@ -113,22 +88,6 @@ public class Game extends PApplet {
     }
 
     public void draw() {
-//<<<<<<< main
-        background(255, 255, 255);
-        for (Bullet b : bullets) {
-            if (b.shouldIDie()) {
-                deadBullets.add(b);
-                continue;
-
-            }
-            b.update(1, myLevel);
-            showBullet(b);
-        }
-        for (Bullet i : deadBullets) {
-            bullets.remove(i);
-        }
-        deadBullets.clear();
-//=======
         if (!simulationStop) {
             if (ChronoUnit.SECONDS.between(startTime, Instant.now()) > timeLimit) {
                 simulationStop = true;
@@ -140,17 +99,21 @@ public class Game extends PApplet {
                     finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
                     new TextDrawer(finalText).setVisible(true);
                 });
-//>>>>>>> merge-branch
             }
             background(255, 255, 255);
+            for (Bullet b : bullets) {
+                if (b.shouldIDie()) {
+                    deadBullets.add(b);
+                    continue;
 
-
-//<<<<<<< main
-            for (Wall w : myLevel.getWalls()) {
-                showWall(w);
-//=======
+                }
+                b.update(1, myLevel);
+                showBullet(b);
             }
-
+            for (Bullet i : deadBullets) {
+                bullets.remove(i);
+            }
+            deadBullets.clear();
             for (Tank tank : tanks) {
                 Bullet res = tank.collideWithBullets(bullets);
                 if (res != null) {
@@ -172,17 +135,36 @@ public class Game extends PApplet {
                 showTank(tank);
             }
 
-        }
-        if (newBullets.size() != 0) {
-            bullets.addAll(newBullets);
-            newBullets.clear();
-        }
+            for (Wall w : myLevel.getWalls()) {
+                showWall(w);
+            }
+            ArrayList<Bullet> tempNewBullets = new ArrayList<>(newBullets);
+            if (!tempNewBullets.isEmpty()) {
+                for (Bullet b : tempNewBullets) {
+                    if (b == null) {
+                        continue;
+                    }
+                    int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
 
-//<<<<<<< main
+                    if (count < 5) {
+                        bullets.add(b);
+                    }
+                }
+                newBullets.clear();
+            }
+        } else {
+            for (Bullet b : bullets) {
+                showBullet(b);
+            }
+            for (Tank tank : tanks) {
+                showTank(tank);
+            }
+            for (Wall w : myLevel.getWalls()) {
+                showWall(w);
+            }
+        }
     }
 
-    //=======
-//>>>>>>> merge-branch
     public void showTank(Tank t) {
         rectMode(CENTER);
         fill(t.getColor()[0], t.getColor()[1], t.getColor()[2]);
@@ -236,10 +218,10 @@ public class Game extends PApplet {
                 tanks.get(0).left();
                 break;
             case 'q':
-                newBullets.add(tanks.get(0).fireBullet(bullets));
+                newBullets.add(tanks.get(0).fireBullet());
                 break;
             case ENTER:
-                newBullets.add(tanks.get(1).fireBullet(bullets));
+                newBullets.add(tanks.get(1).fireBullet());
                 break;
             case CODED:
                 switch (keyCode) {
@@ -343,79 +325,6 @@ public class Game extends PApplet {
         PApplet.main("proc.sketches.Game");
     }
 
-    //<<<<<<< main
-    void serverCommunicationLoop() throws IOException, AWTException, InterruptedException {
-        Socket clientSocket = new Socket("127.0.0.1", 12345);
-        System.out.println("Connected to " + clientSocket.getRemoteSocketAddress());
-
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in));
-
-        String userInput;
-
-        while (true) {
-            String response = in.readLine();
-            if (response == null) {
-                continue;
-            }
-            String[] params = response.split(",");
-            if (params.length == 2) {
-                String action = params[0];
-                Integer tankId = Integer.parseInt(params[1]);
-                switch (action) {
-                    case "FIRE":
-                        newBullets.add(tanks.get(tankId).fireBullet(bullets));
-                        break;
-                    case "FORWARD":
-                        tanks.get(tankId).forward();
-                        break;
-                    case "BACKWARD":
-                        tanks.get(tankId).backward();
-                        break;
-                    case "RIGHT":
-                        tanks.get(tankId).right();
-                        break;
-                    case "LEFT":
-                        tanks.get(tankId).left();
-                        break;
-                    case "STOP_LINEAR":
-                        tanks.get(tankId).stop();
-                        break;
-                    case "STOP_ANGULAR":
-                        tanks.get(tankId).angleStop();
-                        break;
-                    case "GET_STATE":
-                        System.out.println("I WAS ASKED FOR STATE");
-                        out.println(getStateString());
-                        break;
-                }
-                System.out.println(action);
-            }
-
-        }
-    }
-
-    String getStateString() {
-        Map<String, ArrayList<?>> mapa = new HashMap<>();
-        mapa.put("tanks", tanks);
-        mapa.put("bullets", bullets);
-        ArrayList<Wall> allWalls = (ArrayList<Wall>) Arrays.stream(walls).collect(Collectors.toList());
-        mapa.put("walls", allWalls);
-        // Convert the tanks list to a JSON string
-
-        // Convert the tanks list to a JSON string
-        Gson gson = new Gson();
-
-        // Convert the Map to a JSON string
-        String json = gson.toJson(mapa);
-
-        return json;
-
-    }
-
-    //=======
     static GameState getCurrentGameState(Integer tankId) {
         Tank myTank = tanks.get(tankId);
         Tank other = tanks.get(1 - tankId);
@@ -451,6 +360,7 @@ public class Game extends PApplet {
         state.setSeesRight(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
         Double radius = (double) Tank.TANK_SIZE * 1.75;
+
         for (Bullet bullet : bullets) {
             if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= radius) {
                 if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getLastX(), bullet.getLastY())) {
@@ -588,7 +498,7 @@ public class Game extends PApplet {
             AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
             switch (action.getFireDecision()) {
                 case "FIRE":
-                    newBullets.add(tanks.get(tankId).fireBullet(bullets));
+                    newBullets.add(tanks.get(tankId).fireBullet());
                     break;
             }
             switch (action.getLinearDecision()) {
@@ -616,5 +526,4 @@ public class Game extends PApplet {
         }
     }
 
-//>>>>>>> merge-branch
 }

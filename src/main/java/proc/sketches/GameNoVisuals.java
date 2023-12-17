@@ -58,13 +58,8 @@ public class GameNoVisuals extends Game {
                     continue;
                 }
                 int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
-                boolean canShoot = true;
-                if (b.getOwner().getId() == 0 && ChronoUnit.SECONDS.between(LastBullet0, Instant.now()) < 0.2) {
-                    canShoot = false;
-                } else if (b.getOwner().getId() == 1 && ChronoUnit.SECONDS.between(LastBullet1, Instant.now()) < 0.2) {
-                    canShoot = false;
-                }
-                if (count < 5 && canShoot) {
+
+                if (count < 5) {
                     bullets.add(b);
                     if (b.getOwner().getId() == 0) {
                         LastBullet0 = Instant.now();
@@ -151,7 +146,7 @@ public class GameNoVisuals extends Game {
                 //Implement decision
                 switch (action0.getFireDecision()) {
                     case "FIRE":
-                        newBullets.add(tanks.get(0).fireBullet(bullets));
+                        newBullets.add(tanks.get(0).fireBullet());
                         break;
                 }
                 switch (action0.getLinearDecision()) {
@@ -182,7 +177,7 @@ public class GameNoVisuals extends Game {
                 //Implement decision
                 switch (action1.getFireDecision()) {
                     case "FIRE":
-                        newBullets.add(tanks.get(1).fireBullet(bullets));
+                        newBullets.add(tanks.get(1).fireBullet());
                         break;
                 }
                 switch (action1.getLinearDecision()) {
