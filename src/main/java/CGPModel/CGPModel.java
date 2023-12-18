@@ -47,6 +47,23 @@ public class CGPModel {
         }
     }
 
+    public static CGPModel buildSingleFromString(String s) {
+        try {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<List<Integer>>>() {
+            }.getType();
+            List<List<Integer>> parsedData = gson.fromJson(s, type);
+            List<Integer> outputs = parsedData.get(parsedData.size() - 1);
+            parsedData.remove(parsedData.size() - 1);
+            List<List<Integer>> genome = parsedData;
+
+            return new CGPModel(genome, outputs);
+        } catch (Exception e) {
+            System.out.println("Failed to read file");
+            return null;
+        }
+    }
+
     private List<Double> evaluate(List<Double> inputs) {
         List<Double> result = new ArrayList<>(this.genome.size());
 

@@ -30,44 +30,68 @@ public class PlayerAi {
             brTest = new BufferedReader(new FileReader(playerBrain.toFile()));
             firstLine = brTest.readLine();
         } catch (FileNotFoundException e) {
-            playerBrain=null;
+            playerBrain = null;
         }
-        
+
 
         //TODO: if else --> way to read and save each type of brain
         PlayerAi playerAi = new PlayerAi();
-        playerAi.type="DUMMY";
-        System.out.println("MAKING PLAYER");
-        if(playerBrain==null) {
-            playerAi.type="DUMMY";
+        playerAi.type = "DUMMY";
+        if (playerBrain == null) {
+            playerAi.type = "DUMMY";
             return playerAi;
         } else if ("HARDCODED MISKO".equals(firstLine)) {
             playerAi.type = "HARDCODED";
-            playerAi.hardCode = new HardCodedPlayerByMisko(20,id);
+            playerAi.hardCode = new HardCodedPlayerByMisko(20, id);
         } else if ("NN".equals(firstLine)) {
             playerAi.type = "NN";
             playerAi.neuralNetwork = new Network(playerBrain.toFile());
-        }else if (firstLine.equals("CGP")){
+        } else if (firstLine.equals("CGP")) {
             playerAi.type = "CGP";
             playerAi.modelCGP = CGPModel.buildSingleFromFile(playerBrain.toString());
         }
         return playerAi;
     }
 
+    public static PlayerAi loadFromString(String playerBrain, int id) {
+        String firstLine = null;
+
+        firstLine = playerBrain.split("\n")[0];
+        playerBrain = playerBrain.substring(playerBrain.indexOf("\n") + 1);
+
+
+        //TODO: if else --> way to read and save each type of brain
+        PlayerAi playerAi = new PlayerAi();
+        playerAi.type = "DUMMY";
+
+        if (playerBrain == null) {
+
+        } else if ("HARDCODED MISKO".equals(firstLine)) {
+
+        } else if ("NN".equals(firstLine)) {
+
+        } else if (firstLine.equals("CGP")) {
+            playerAi.type = "CGP";
+            playerAi.modelCGP = CGPModel.buildSingleFromString(playerBrain);
+        }
+        System.out.println("Created " + playerAi.type);
+        return playerAi;
+
+    }
 
     public AiOutput makeDecisionBasedOnGameState(GameState currentGameState) {
         /*
         TODO if else -->> based on type of brain make decision
          */
         if (type.equals("DUMMY")) {
-            return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
+            return new AiOutput("NO_FIRE", "RIGHT", "STOP_LINEAR");
         } else if (type.equals("HARDCODED")) {
             return hardCode.makeAction();
         } else if (type.equals("NN")) {
             return neuralNetwork.makeAction(currentGameState);
-        }else if (type.equals("CGP")){
+        } else if (type.equals("CGP")) {
             return modelCGP.makeAction(currentGameState);
         }
-        return new AiOutput("NO_FIRE","RIGHT","STOP_LINEAR");
+        return new AiOutput("NO_FIRE", "RIGHT", "STOP_LINEAR");
     }
 }

@@ -87,10 +87,10 @@ def genomeToString(genome):
 myGenome = construct_random_genome(50, 11)
 evaluation = evaluate_genome(myGenome, [1,3])
 
-print(myGenome)
-print(evaluation)
-print("\n")
-print(genomeToString(myGenome))
+# print(myGenome)
+# print(evaluation)
+# print("\n")
+# print(genomeToString(myGenome))
 
 myGenome[0].append(myGenome[1])
 write_to_file(myGenome[0], "first.txt")
