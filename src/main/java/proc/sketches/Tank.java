@@ -5,9 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class Tank {
 
+public class Tank extends PApplet {
+    private int id;
     private float posX;
 
     private float posY;
@@ -28,7 +30,7 @@ public class Tank {
     public transient final float SPAWN_LOCATION_X;
     public transient final float SPAWN_LOCATION_Y;
 
-    public Tank(float posX, float posY, float angle, int[] color) {
+    public Tank(float posX, float posY, float angle, int[] color, int id) {
         this.posX = posX;
         this.posY = posY;
         SPAWN_LOCATION_X = posX;
@@ -36,6 +38,7 @@ public class Tank {
         this.color = color;
         this.angle = angle;
         this.velocity = 0;
+        this.id = id;
     }
 
 
@@ -75,7 +78,6 @@ public class Tank {
             if (t == CollisionType.X || t == CollisionType.TOTAL) {
                 this.posX = oldPosX;
             }
-
         }
         this.posY += deltaY;
         for (Wall w : level.getWalls()) {
@@ -83,20 +85,31 @@ public class Tank {
             if (t == CollisionType.Y || t == CollisionType.TOTAL) {
                 this.posY = oldPosY;
             }
-
         }
         // Update the angle based on angular velocity
-        this.angle += this.angularVelocity * timeDelta;
+
         currentBulletTimeout -= 1;
+
+        this.angle += (float) (this.angularVelocity * timeDelta);
+        this.angle = Float.parseFloat(String.valueOf(this.angle % (2 * Math.PI)));
+        if (this.angle > Math.PI) {
+            this.angle = Float.parseFloat(String.valueOf(-2 * Math.PI + this.angle));
+        } else if (this.angle <= -Math.PI) {
+            this.angle = Float.parseFloat(String.valueOf(2 * Math.PI + this.angle));
+        }
+
     }
 
 
     public Bullet fireBullet() {
+
         Bullet b = new Bullet(this.posX, this.posY, this.angle, this);
         if (currentBulletTimeout > 0) {
             b.setCurrentLife(Bullet.MAX_LIFE);
+            System.out.println("Fired max life bullet.");
             return b;
         }
+        System.out.println("Fired standard bullet");
         currentBulletTimeout = BULLET_TIMEOUT;
         return b;
     }
@@ -194,4 +207,24 @@ public class Tank {
         this.posY = SPAWN_LOCATION_Y;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tank tank = (Tank) o;
+        return id == tank.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }
