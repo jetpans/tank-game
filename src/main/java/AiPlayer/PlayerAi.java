@@ -65,11 +65,12 @@ public class PlayerAi {
         playerAi.type = "DUMMY";
 
         if (playerBrain == null) {
-
+            playerAi.type = "DUMMY";
+            return playerAi;
         } else if ("HARDCODED MISKO".equals(firstLine)) {
-
+            //TODO fix this
         } else if ("NN".equals(firstLine)) {
-
+            //TODO parse NN from String somehow.
         } else if (firstLine.equals("CGP")) {
             playerAi.type = "CGP";
             playerAi.modelCGP = CGPModel.buildSingleFromString(playerBrain);

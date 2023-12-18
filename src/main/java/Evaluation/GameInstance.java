@@ -222,10 +222,26 @@ public class GameInstance {
                 continue;
             }
             if (response.equals("START")) {
-                String first = in.readLine() + "\n" + in.readLine();
-                if (first != null) System.out.println(first);
-                String second = in.readLine() + "\n" + in.readLine();
-                if (second != null) System.out.println(second);
+                String first = in.readLine();
+                if (first != null) {
+                    if (first.equals("CGP")) {
+                        first += "\n" + in.readLine();
+                        System.out.println(first);
+
+                    } else if (first.equals("NN")) {
+                        // ? TODO
+                    }
+                }
+                String second = in.readLine();
+                if (second != null) {
+                    if (second.equals("CGP")) {
+                        second += "\n" + in.readLine();
+                        System.out.println(second);
+
+                    } else if (second.equals("NN")) {
+                        // ? TODO
+                    }
+                }
                 GameInstance newGame = new GameInstance();
                 String result = newGame.start(first, second);
                 if (result != null) System.out.println(result);

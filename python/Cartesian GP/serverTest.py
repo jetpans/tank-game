@@ -18,8 +18,8 @@ print("Connected to", client_address)
 
 while True:
     
-    genome1 = construct_random_genome(10, 3)
-    genome2 = construct_random_genome(10, 3)
+    genome1 = construct_random_genome(50, 11)
+    genome2 = construct_random_genome(50, 11)
     
     
     genome1[0].append(genome1[1])
