@@ -146,8 +146,13 @@ public class Game extends PApplet {
                     }
                     int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
 
-                    if (count < 5) {
+                    if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
                         bullets.add(b);
+                        if (b.getOwner().getId() == 0) {
+                            totalBullet1++;
+                        } else if (b.getOwner().getId() == 1) {
+                            totalBullet2++;
+                        }
                     }
                 }
                 newBullets.clear();
@@ -360,8 +365,8 @@ public class Game extends PApplet {
         state.setSeesRight(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
         Double radius = (double) Tank.TANK_SIZE * 1.75;
-
-        for (Bullet bullet : bullets) {
+        ArrayList<Bullet> tempBullets = new ArrayList<>(bullets);
+        for (Bullet bullet : tempBullets) {
             if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= radius) {
                 if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getLastX(), bullet.getLastY())) {
                     Double tempAngle = myTank.getAngle() < 0 ? myTank.getAngle() + (2 * Math.PI) : myTank.getAngle();

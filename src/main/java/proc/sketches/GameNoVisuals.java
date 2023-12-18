@@ -61,12 +61,13 @@ public class GameNoVisuals extends Game {
 
                 if (count < 5) {
                     bullets.add(b);
-                    if (b.getOwner().getId() == 0) {
-                        LastBullet0 = Instant.now();
-                        bulletsShot1++;
-                    } else {
-                        LastBullet1 = Instant.now();
-                        bulletsShot2++;
+                    if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
+                        bullets.add(b);
+                        if (b.getOwner().getId() == 0) {
+                            bulletsShot1++;
+                        } else if (b.getOwner().getId() == 1) {
+                            bulletsShot2++;
+                        }
                     }
 
                 }
