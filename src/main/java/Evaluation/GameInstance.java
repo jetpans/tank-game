@@ -90,7 +90,7 @@ public class GameInstance {
 
     public String start(String firstAgent, String secondAgent) {
         LevelTypes.setDimensions(dimX, dimY);
-        String wallsChoice = "1";
+        String wallsChoice = "4";
         Integer timeLimit = 1000;
         //1000 unit in a real game would be around 5 seconds
         //1M units is around 1.5seconds for a medium NN
@@ -226,7 +226,7 @@ public class GameInstance {
                 if (first != null) {
                     if (first.equals("CGP")) {
                         first += "\n" + in.readLine();
-                        System.out.println(first);
+//                        System.out.println(first);
 
                     } else if (first.equals("NN")) {
                         // ? TODO
@@ -236,7 +236,7 @@ public class GameInstance {
                 if (second != null) {
                     if (second.equals("CGP")) {
                         second += "\n" + in.readLine();
-                        System.out.println(second);
+//                        System.out.println(second);
 
                     } else if (second.equals("NN")) {
                         // ? TODO
@@ -244,7 +244,7 @@ public class GameInstance {
                 }
                 GameInstance newGame = new GameInstance();
                 String result = newGame.start(first, second);
-                if (result != null) System.out.println(result);
+//                if (result != null) System.out.println(result);
                 out.println(result);
             }
 

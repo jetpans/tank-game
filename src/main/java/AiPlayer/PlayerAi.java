@@ -75,7 +75,6 @@ public class PlayerAi {
             playerAi.type = "CGP";
             playerAi.modelCGP = CGPModel.buildSingleFromString(playerBrain);
         }
-        System.out.println("Created " + playerAi.type);
         return playerAi;
 
     }
