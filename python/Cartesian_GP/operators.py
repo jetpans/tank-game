@@ -1,8 +1,13 @@
 import math
 operators = {}
 
-
+def exponent(a,b):
+    try:
+        return min(a**b, 1e6)
+    except:
+        return 0
 operators[-1] = lambda a,b: a
+
 
 
 operators[0] =  lambda a, b: a+b
@@ -13,7 +18,7 @@ operators[4] =  lambda a, b: a%b if b != 0 else 0
 operators[5] =  lambda a, b: a // b if b != 0 else 0
 operators[6] =  lambda a, b: max(a,b)
 operators[7] =  lambda a, b: min(a,b)
-operators[8] =  lambda a, b: min(a**b, 1e6)
+operators[8] =  lambda a, b: exponent(a,b)
 operators[9] =  lambda a, b: math.sin(a)
 operators[10] = lambda a, b: math.cos(a)
 operators[11] = lambda a, b: a**0.5 if a >= 0 else (-a)**0.5

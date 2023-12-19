@@ -103,7 +103,7 @@ def main():
                 
                 fitness[first] += fitness_first
                 fitness[second] += fitness_second
-        sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[0])))
+        sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
         
         newChild = CGP.reproduce_genomes2(sorting[0][0], sorting[1][0])[0]
         newChild = CGP.mutate_genome(newChild)
