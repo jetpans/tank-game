@@ -33,15 +33,17 @@ def convert_genome_to_json(genome):
 
 def main():
     #...
-    first_genome = CGP.construct_random_genome(10,3)
-    second_genome = CGP.construct_random_genome(10,3)
-    
-    first_json = convert_genome_to_json(first_genome)
-    second_json = convert_genome_to_json(second_genome)
-    
-    result = evaluate_game("CGP", first_json, "CGP", second_json) 
-    
-    print(result)
+    while True:
+        first_genome = CGP.construct_random_genome(10,3)
+        second_genome = CGP.construct_random_genome(10,3)
+        
+        first_json = convert_genome_to_json(first_genome)
+        second_json = convert_genome_to_json(second_genome)
+        
+        result = evaluate_game("CGP", first_json, "CGP", second_json) 
+        
+        print(result)
+        input()
     ##Write your code here
 
     #...

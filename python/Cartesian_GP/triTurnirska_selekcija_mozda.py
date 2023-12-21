@@ -52,13 +52,15 @@ def parse_result(result):
 def fitness_from_result(result, player):
     WIN_WEIGHT = 200
     LOSE_WEIGHT = 0
-    DRAW_WEIGHT = 50
-    WEIGHT_PER_BULLET = -20
+    DRAW_WEIGHT = -200
+    WEIGHT_PER_BULLET = -5
     MURDER_WEIGHT = 900
-    SUICIDE_WEIGHT = -200
+    SUICIDE_WEIGHT = -300
     
     myBullets = result["bullets_1"] if player.endswith("1") else result["bullets_2"]
+    
     suma = 0
+    
     suma += myBullets * WEIGHT_PER_BULLET
     suma += -1 * result["decisions"] ** 0.5
 
@@ -79,15 +81,20 @@ def fitness_from_result(result, player):
 
 NUMBER_OF_EXTRA_NODES = 30
 NUMBER_OF_INPUT_NODES = 11
-ITERATIONS = 1000
+ITERATIONS = 50000
 def main():
     population = [CGP.construct_random_genome(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(3)]
     for p in population:
         print(p)
     
     
-    for i in range(ITERATIONS):
-        print(i)
+    for i in range(ITERATIONS* 10000):
+        if i%500 == 0:
+            tempPopulation = copy.deepcopy(population)
+            for k in range(len(tempPopulation)):
+                tempPopulation[k][0].append(tempPopulation[k][1])
+                write_to_file(tempPopulation[k][0], f"result{k}.txt")
+            print(i)
         fitness = [0,0,0]
         for first in range(3):
             for second in range(first+1,3):
@@ -104,14 +111,10 @@ def main():
                 fitness[first] += fitness_first
                 fitness[second] += fitness_second
         sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
-        
         newChild = CGP.reproduce_genomes2(sorting[0][0], sorting[1][0])[0]
         newChild = CGP.mutate_genome(newChild)
-        
         population = [sorting[0][0], sorting[1][0], newChild]
-    for i in range(len(population)):
-        population[i][0].append(population[i][1])
-        write_to_file(population[i][0], f"result{i}.txt")
+    
         
     return
 

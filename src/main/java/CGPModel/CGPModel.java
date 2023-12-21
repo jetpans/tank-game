@@ -114,17 +114,17 @@ public class CGPModel {
                 answer.setFireDecision("");
             }
 
-            if (linearOutput < -1) {
+            if (linearOutput < 0) {
                 answer.setLinearDecision("BACKWARD");
-            } else if (linearOutput > 1) {
+            } else if (linearOutput > 0) {
                 answer.setLinearDecision("FORWARD");
             } else {
                 answer.setLinearDecision("STOP_LINEAR");
             }
 
-            if (angularOutput < -1) {
+            if (angularOutput < 0) {
                 answer.setAngularDecision("LEFT");
-            } else if (linearOutput > 1) {
+            } else if (linearOutput > 0) {
                 answer.setAngularDecision("RIGHT");
             } else {
                 answer.setAngularDecision("STOP_ANGULAR");

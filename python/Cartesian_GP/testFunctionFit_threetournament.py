@@ -14,7 +14,7 @@ for i in range(PLOT_X1*10, PLOT_X2*10):
     PLOT_X.append(i/10)
     
     
-ITERATIONS = int(15)
+ITERATIONS = int(5*1e4)
 
 POP_SIZE = int(1e4)
 NUMBER_OF_EXTRA_NODES = 10
@@ -44,29 +44,25 @@ def fitness_against_data(jedinka):
     
     return suma
 def train():
-    population = [CGP.construct_random_genome(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES, number_of_outputs=1) for _ in range(POP_SIZE)]
+    population = [CGP.construct_random_genome(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES, number_of_outputs=1) for _ in range(3)]
 
 
 
     for i in range(ITERATIONS):
-        print(i)
-        # print(i)
+        if (i%1000)  == 0:
+            print(i)
         fitness = []
-        for index in range(POP_SIZE):
+        for index in range(3):
             fitness.append(fitness_against_data(population[index]))
             
         sorting = list(sorted(zip(population,fitness), key = lambda x: x[1]))
         
         population = list(map(lambda x: x[0] , sorting))
-        new_population = copy.deepcopy(population[:int(POP_SIZE / 4)])
-        for k in range(int((POP_SIZE-len(new_population) ) / 2)):
-            first = random.choice(population[:int(POP_SIZE/4)])
-            second = random.choice(population[:int(POP_SIZE/4)])
-            newChildren = CGP.reproduce_genomes2(first, second)
-            new_population.append(CGP.mutate_genome(newChildren[0]))
-            new_population.append(CGP.mutate_genome(newChildren[1]))
-        for t in range(int(POP_SIZE - len(new_population))):
-            new_population.append(CGP.construct_random_genome(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES))
+        
+        newChild = CGP.reproduce_genomes2(population[0], population[1])[0]
+        newChild = CGP.mutate_genome(newChild)
+        population = [population[0], population[1], newChild]
+        
     plot_data(data)
 
     plot_genome(population[0])

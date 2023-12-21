@@ -33,6 +33,8 @@ def construct_random_genome(number_of_nodes, number_of_inputs, number_of_outputs
     
     return [genome_result,outputs]
 
+
+
 def evaluate_genome(genome, inputs):
     genome, outputs = genome
     evaluation = [0]*len(genome)

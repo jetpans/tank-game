@@ -14,7 +14,7 @@ def fetch_from_file(filename):
     
     
 def f(x):
-    return x**2-x + x*math.cos(x)
+    return x**2 * math.sin(x) + x - 4
 
 # Generate 15 random (x, y) tuples
 random_tuples = []
