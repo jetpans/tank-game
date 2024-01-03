@@ -30,7 +30,7 @@ def construct_random_genome(number_of_nodes, number_of_inputs, number_of_outputs
         genome_result.append([in1,in2,operator])
     
     outputs = list(random.choices(range(number_of_inputs,len(genome_result)), k = 3))
-    
+    outputs = list(range(len(genome_result) - number_of_outputs , len(genome_result)))
     return [genome_result,outputs]
 
 
@@ -103,6 +103,8 @@ def reproduce_genomes2(genome1, genome2):
     c2 = c2[:cutoff] + genome1[cutoff:]
             
     return ([c1, output1],[c2, output2])
+
+
 def genomeToString(genome):
     return json.dumps(genome)
 

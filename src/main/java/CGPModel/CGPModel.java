@@ -116,7 +116,7 @@ public class CGPModel {
 
             if (linearOutput < 0) {
                 answer.setLinearDecision("BACKWARD");
-            } else if (linearOutput > 0) {
+            } else if (linearOutput >= 0) {
                 answer.setLinearDecision("FORWARD");
             } else {
                 answer.setLinearDecision("STOP_LINEAR");
@@ -124,7 +124,7 @@ public class CGPModel {
 
             if (angularOutput < 0) {
                 answer.setAngularDecision("LEFT");
-            } else if (linearOutput > 0) {
+            } else if (linearOutput >= 0) {
                 answer.setAngularDecision("RIGHT");
             } else {
                 answer.setAngularDecision("STOP_ANGULAR");

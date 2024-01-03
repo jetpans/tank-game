@@ -14,7 +14,7 @@ for i in range(PLOT_X1*10, PLOT_X2*10):
     PLOT_X.append(i/10)
     
     
-ITERATIONS = int(5*1e4)
+ITERATIONS = int(2*1e4)
 
 POP_SIZE = int(1e4)
 NUMBER_OF_EXTRA_NODES = 10

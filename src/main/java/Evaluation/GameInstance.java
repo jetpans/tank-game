@@ -21,8 +21,8 @@ import static proc.sketches.Game.*;
 import static proc.sketches.GameNoVisuals.calculateDistance;
 
 public class GameInstance {
-    public static int dimX = 1000;
-    public static int dimY = 1000;
+    public int dimX = 1000;
+    public int dimY = 1000;
     public String winner = null;
     public ArrayList<Tank> tanks = new ArrayList<>();
     public Level myLevel;
@@ -70,7 +70,6 @@ public class GameInstance {
                 int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
 
                 if (count < 5) {
-                    bullets.add(b);
                     if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
                         bullets.add(b);
                         if (b.getOwner().getId() == 0) {
@@ -109,8 +108,8 @@ public class GameInstance {
             tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor, 1));
 
             //Loading players
-            PlayerAi player0 = PlayerAi.loadFromString(firstAgent, 0);
-            PlayerAi player1 = PlayerAi.loadFromString(secondAgent, 1);
+            PlayerAi player0 = PlayerAi.loadFromString(firstAgent, 0, this);
+            PlayerAi player1 = PlayerAi.loadFromString(secondAgent, 1, this);
 
             int decisions = 0;
 
@@ -121,7 +120,9 @@ public class GameInstance {
                     winner = "DRAW";
                 }
                 //get decision from P1
+
                 AiOutput action0 = player0.makeDecisionBasedOnGameState(getCurrentGameStateInstance(0));
+
                 //Implement decision
                 switch (action0.getFireDecision()) {
                     case "FIRE":
@@ -233,6 +234,8 @@ public class GameInstance {
 
                     } else if (first.equals("NN")) {
                         // ? TODO
+                    } else if (first.equals("HCINSTANCE")) {
+                        in.readLine();
                     }
                 }
                 String second = in.readLine();
@@ -243,6 +246,8 @@ public class GameInstance {
 
                     } else if (second.equals("NN")) {
                         // ? TODO
+                    } else if (second.equals("HCINSTANCE")) {
+                        in.readLine();
                     }
                 }
                 GameInstance newGame = new GameInstance();
@@ -301,11 +306,11 @@ public class GameInstance {
         //direct sight
         state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
-        state.setDistanceToEnemy(calculateDistance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
+        state.setDistanceToEnemy(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 
         //4directions + bonus for front
         Point closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle());
-        state.setDistanceFront(calculateDistance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
+        state.setDistanceFront(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
         state.setSeesFront(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
         Double wallAngle = (double) 0;
@@ -316,22 +321,22 @@ public class GameInstance {
         state.setEnemySeesObstacle(wallAngle - calculateAngleFromXAxis(other.getPosX(), other.getPosY(), closest.getX(), closest.getY()));
 
         closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle() + (Math.PI));
-        state.setDistanceBack(calculateDistance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
+        state.setDistanceBack(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
         state.setSeesBack(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
         closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle() - (Math.PI / 2));
-        state.setDistanceLeft(calculateDistance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
+        state.setDistanceLeft(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
         state.setSeesLeft(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
         closest = getClosestPointInDirectionY((double) myTank.getPosX(), (double) myTank.getPosY(), (double) myTank.getAngle() + (Math.PI / 2));
-        state.setDistanceRight(calculateDistance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
+        state.setDistanceRight(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
         state.setSeesRight(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
         Double radius = (double) Tank.TANK_SIZE * 1.75;
         ArrayList<Bullet> tempBullets = new ArrayList<>(bullets);
         for (Bullet bullet : tempBullets) {
-            if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= radius) {
-                if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getLastX(), bullet.getLastY())) {
+            if (calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= radius) {
+                if (calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), bullet.getLastX(), bullet.getLastY())) {
                     Double tempAngle = myTank.getAngle() < 0 ? myTank.getAngle() + (2 * Math.PI) : myTank.getAngle();
                     Double tempAngleToBullet = calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY());
                     tempAngleToBullet = tempAngleToBullet < 0 ? tempAngleToBullet + (2 * Math.PI) : tempAngleToBullet;
@@ -364,7 +369,7 @@ public class GameInstance {
                 closest = whereLinesIntersect((float) (double) x, outThere.getX(), (float) (double) y, outThere.getY(), w.getX1(), w.getX2(), w.getY1(), w.getY2(), i);
             } else {
                 Point temp = whereLinesIntersect((float) (double) x, outThere.getX(), (float) (double) y, outThere.getY(), w.getX1(), w.getX2(), w.getY1(), w.getY2(), i);
-                if (temp != null && calculateDistance(x, y, temp.getX(), temp.getY()) < calculateDistance(x, y, closest.getX(), closest.getY())) {
+                if (temp != null && calculateDistanceInstance(x, y, temp.getX(), temp.getY()) < calculateDistanceInstance(x, y, closest.getX(), closest.getY())) {
                     closest = temp;
                 }
             }

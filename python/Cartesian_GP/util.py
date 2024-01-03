@@ -15,4 +15,5 @@ def write_to_file(data, filename):
         
 def fetch_from_file(filename):
     with open(filename, "r",encoding = "UTF-8") as read_file:
+        read_file.readline()
         return json.load(read_file)

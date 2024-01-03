@@ -83,11 +83,8 @@ NUMBER_OF_EXTRA_NODES = 30
 NUMBER_OF_INPUT_NODES = 11
 ITERATIONS = 50000
 def main():
-    j1 = fetch_from_file("result0.txt")
-    j2 = fetch_from_file("result1.txt")
+
     
-    print(evaluate_game("CGP", json.dumps(j2), "HCINSTANCE", " " ))
-    exit()
     
     population = [CGP.construct_random_genome(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(3)]
     for p in population:
@@ -102,19 +99,11 @@ def main():
             print(i)
         fitness = [0,0,0]
         for first in range(3):
-            for second in range(first+1,3):
-                str1 = convert_genome_to_json(population[first])
-                str2 = convert_genome_to_json(population[second])
-                # print("SENT: ", str1)
-                # print("SENT: ", str2)
-                game_result = evaluate_game("CGP" , str1, "CGP", str2)
-                game_result = parse_result(game_result)
-                print(game_result["way_of_victory"])
-                fitness_first = fitness_from_result(game_result, "Player1")
-                fitness_second = fitness_from_result(game_result, "Player2")
-                
-                fitness[first] += fitness_first
-                fitness[second] += fitness_second
+            str1 = convert_genome_to_json(population[first])
+            game_result = evaluate_game("CGP", str1, "HCINSTANCE", " " )
+            game_result = parse_result(game_result)
+            fitness_first = fitness_from_result(game_result, "Player1")
+            fitness[first] += fitness_first
         
         sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
         newChild = CGP.reproduce_genomes2(sorting[0][0], sorting[1][0])[0]

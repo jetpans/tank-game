@@ -55,4 +55,15 @@ public class Wall {
     public WallType getType() {
         return this.type;
     }
+
+    @Override
+    public String toString() {
+        return "Wall{" +
+                "x1=" + x1 +
+                ", y1=" + y1 +
+                ", x2=" + x2 +
+                ", y2=" + y2 +
+                ", type=" + type +
+                '}';
+    }
 }

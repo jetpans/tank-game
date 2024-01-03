@@ -1,6 +1,8 @@
 package AiPlayer;
 
 import CGPModel.CGPModel;
+import Evaluation.GameInstance;
+import Evaluation.HardCodedPlayerInstance;
 import HardCodedPlayer.HardCodedPlayerByMisko;
 import NeuralNetwork.Network;
 
@@ -16,6 +18,7 @@ public class PlayerAi {
     //here are paremeters for Hardcoded player
     HardCodedPlayerByMisko hardCode;
 
+    HardCodedPlayerInstance instanceHardCode;
     //here are neural network parameters
     Network neuralNetwork;
 
@@ -53,7 +56,7 @@ public class PlayerAi {
         return playerAi;
     }
 
-    public static PlayerAi loadFromString(String playerBrain, int id) {
+    public static PlayerAi loadFromString(String playerBrain, int id, GameInstance game) {
         String firstLine = null;
 
         firstLine = playerBrain.split("\n")[0];
@@ -74,6 +77,9 @@ public class PlayerAi {
         } else if (firstLine.equals("CGP")) {
             playerAi.type = "CGP";
             playerAi.modelCGP = CGPModel.buildSingleFromString(playerBrain);
+        } else if (firstLine.equals("HCINSTANCE")) {
+            playerAi.type = "HCINSTANCE";
+            playerAi.instanceHardCode = new HardCodedPlayerInstance(20, id, game);
         }
         return playerAi;
 
@@ -91,6 +97,8 @@ public class PlayerAi {
             return neuralNetwork.makeAction(currentGameState);
         } else if (type.equals("CGP")) {
             return modelCGP.makeAction(currentGameState);
+        } else if (type.equals("HCINSTANCE")) {
+            return instanceHardCode.makeAction();
         }
         return new AiOutput("NO_FIRE", "RIGHT", "STOP_LINEAR");
     }
