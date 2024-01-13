@@ -185,9 +185,6 @@ public class GameInstance {
 
                 //make decision results visible for next round
                 updateGame();
-                updateGame();
-                updateGame();
-                updateGame();
             }
 
 

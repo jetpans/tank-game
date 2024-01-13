@@ -22,6 +22,8 @@ import java.util.HashSet;
 import static java.lang.Thread.sleep;
 
 public class Game extends PApplet {
+    public static PlayerAi player1;
+    public static PlayerAi player2;
     public static final int dimX = 1000;
     public static final int dimY = 1000;
     public static ArrayList<Tank> tanks = new ArrayList<>();
@@ -157,6 +159,66 @@ public class Game extends PApplet {
                 }
                 newBullets.clear();
             }
+
+            AiOutput action = player1.makeDecisionBasedOnGameState(getCurrentGameState(0));
+            switch (action.getFireDecision()) {
+                case "FIRE":
+                    newBullets.add(tanks.get(0).fireBullet());
+                    break;
+            }
+            switch (action.getLinearDecision()) {
+                case "FORWARD":
+                    tanks.get(0).forward();
+                    break;
+                case "BACKWARD":
+                    tanks.get(0).backward();
+                    break;
+                case "STOP_LINEAR":
+                    tanks.get(0).stop();
+                    break;
+            }
+            switch (action.getAngularDecision()) {
+                case "RIGHT":
+                    tanks.get(0).right();
+                    break;
+                case "LEFT":
+                    tanks.get(0).left();
+                    break;
+                case "STOP_ANGULAR":
+                    tanks.get(0).angleStop();
+                    break;
+            }
+
+            action = player2.makeDecisionBasedOnGameState(getCurrentGameState(1));
+            switch (action.getFireDecision()) {
+                case "FIRE":
+                    newBullets.add(tanks.get(1).fireBullet());
+                    break;
+            }
+            switch (action.getLinearDecision()) {
+                case "FORWARD":
+                    tanks.get(1).forward();
+                    break;
+                case "BACKWARD":
+                    tanks.get(1).backward();
+                    break;
+                case "STOP_LINEAR":
+                    tanks.get(1).stop();
+                    break;
+            }
+            switch (action.getAngularDecision()) {
+                case "RIGHT":
+                    tanks.get(1).right();
+                    break;
+                case "LEFT":
+                    tanks.get(1).left();
+                    break;
+                case "STOP_ANGULAR":
+                    tanks.get(1).angleStop();
+                    break;
+            }
+
+
         } else {
             for (Bullet b : bullets) {
                 showBullet(b);
@@ -330,7 +392,7 @@ public class Game extends PApplet {
         PApplet.main("proc.sketches.Game");
     }
 
-    public static GameState getCurrentGameState(Integer tankId) {
+    static GameState getCurrentGameState(Integer tankId) {
         Tank myTank = tanks.get(tankId);
         Tank other = tanks.get(1 - tankId);
 
@@ -497,38 +559,14 @@ public class Game extends PApplet {
     }
 
     void playerAi(Path playerBrain, Integer tankId) throws IOException, AWTException, InterruptedException {
-        PlayerAi player = PlayerAi.loadFromFile(playerBrain, tankId);
-        while (!simulationStop) {
-            sleep(1);
-            AiOutput action = player.makeDecisionBasedOnGameState(getCurrentGameState(tankId));
-            switch (action.getFireDecision()) {
-                case "FIRE":
-                    newBullets.add(tanks.get(tankId).fireBullet());
-                    break;
-            }
-            switch (action.getLinearDecision()) {
-                case "FORWARD":
-                    tanks.get(tankId).forward();
-                    break;
-                case "BACKWARD":
-                    tanks.get(tankId).backward();
-                    break;
-                case "STOP_LINEAR":
-                    tanks.get(tankId).stop();
-                    break;
-            }
-            switch (action.getAngularDecision()) {
-                case "RIGHT":
-                    tanks.get(tankId).right();
-                    break;
-                case "LEFT":
-                    tanks.get(tankId).left();
-                    break;
-                case "STOP_ANGULAR":
-                    tanks.get(tankId).angleStop();
-                    break;
-            }
+        if (tankId == 0) {
+            player1 = PlayerAi.loadFromFile(playerBrain, tankId);
+
+        } else {
+            player2 = PlayerAi.loadFromFile(playerBrain, tankId);
         }
+
+
     }
 
 }
