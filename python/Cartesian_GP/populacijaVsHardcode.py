@@ -51,10 +51,10 @@ def parse_result(result):
 
 def fitness_from_result(result, player):
     WIN_WEIGHT = 200
-    LOSE_WEIGHT = 0
+    LOSE_WEIGHT = -100
     DRAW_WEIGHT = 0
     WEIGHT_PER_BULLET = -5
-    MURDER_WEIGHT = 3000
+    MURDER_WEIGHT = 100
     SUICIDE_WEIGHT = -300
     
     myBullets = result["bullets_1"] if player.endswith("1") else result["bullets_2"]
@@ -71,11 +71,11 @@ def fitness_from_result(result, player):
     elif result["winner"] == player:
         #Nagrada za pobjedu, kazna po metku, nagrada za MURDER, kazna za trajanje igre
         suma += WIN_WEIGHT
-        # suma += MURDER_WEIGHT if result["way_of_victory"] == "MURDER" else 0
+        suma += MURDER_WEIGHT if result["way_of_victory"] == "MURDER" else 0
         return suma
     else:
         suma += LOSE_WEIGHT
-        # suma += SUICIDE_WEIGHT if result["way_of_victory"] == "SUICIDE" else 0
+        suma += SUICIDE_WEIGHT if result["way_of_victory"] == "SUICIDE" else 0
         return suma
         
 
@@ -89,15 +89,18 @@ def main():
     population = [CGP.construct_random_genome(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(3)]
     for p in population:
         print(p)
-    
+    fitness = [0,0,0]
     for i in range(ITERATIONS* 10000):
+
         if i%500 == 0:
             tempPopulation = copy.deepcopy(population)
             for k in range(len(tempPopulation)):
                 tempPopulation[k][0].append(tempPopulation[k][1])
                 write_to_file(tempPopulation[k][0], f"result{k}.txt")
             print(i)
-        fitness = [0,0,0]
+        fitness = copy.deepcopy(fitness)
+        fitness[2] = fitness[1]
+        
         for first in range(3):
             str1 = convert_genome_to_json(population[first])
             game_result = evaluate_game("CGP", str1, "HCINSTANCE", " " )
@@ -106,8 +109,12 @@ def main():
             fitness[first] += fitness_first
         
         sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
+        fitness = list(map(lambda x: x[1]/2, sorting))
+        if i%100 == 0:
+            print(list(map(lambda x: x[1], sorting)))
         newChild = CGP.reproduce_genomes2(sorting[0][0], sorting[1][0])[0]
         newChild = CGP.mutate_genome(newChild)
+        
         population = [sorting[0][0], sorting[1][0], newChild]
         
     return
