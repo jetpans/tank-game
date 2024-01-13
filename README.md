@@ -18,3 +18,15 @@ expected args when starting:
 
 exp.
 --LevelChoice 4 --Player1 C:\Users\mpristav\IdeaProjects\tank-game\src\main\resources\HardcodePlayerMisko --TimeLimit 100 --Player2 C:\Users\mpristav\IdeaProjects\tank-game\src\main\resources\HardcodePlayerMisko --
+
+
+# How to use GameInstance x python
+
+First write a program in python, view Cartesian_GP/exampleForCGP for usage example.
+
+Firstly, launch python, wait for Server is listening...
+Then, start GameInstance in evaluation/GameInstance from Java.
+Now java accepts any further game requests and evaluates given games.
+
+For more complex usage check Cartesian_GP/troturnirski...
+

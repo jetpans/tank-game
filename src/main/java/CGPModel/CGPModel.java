@@ -43,6 +43,22 @@ public class CGPModel {
             return new CGPModel(genome, outputs);
         } catch (Exception e) {
             System.out.println("Failed to read file");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static CGPModel buildSingleFromString(String s) {
+        try {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<List<Integer>>>() {
+            }.getType();
+            List<List<Integer>> parsedData = gson.fromJson(s, type);
+            List<Integer> outputs = parsedData.remove(parsedData.size() - 1);
+            List<List<Integer>> genome = parsedData;
+            return new CGPModel(genome, outputs);
+        } catch (Exception e) {
+            System.out.println("Failed to read file");
             return null;
         }
     }
@@ -59,7 +75,18 @@ public class CGPModel {
                 result.add(inputs.get((-(in1 + 1)) % inputs.size()));
                 continue;
             }
-            result.add(i, Operators.operators.get(operator_key).apply(result.get(in1), result.get(in2)));
+            try {
+                result.add(i, Operators.operators.get(operator_key).apply(result.get(in1), result.get(in2)));
+            } catch (Exception e) {
+                System.out.println(this.genome);
+                System.out.println(this.outputs);
+                System.out.println(result);
+                System.out.println(operator_key);
+                System.out.println(result.get(in1));
+                System.out.println(result.get(in2));
+                e.printStackTrace();
+                System.exit(0);
+            }
         }
         List<Double> outputs = new ArrayList<>(this.outputs.size());
         for (Integer index : this.outputs) {
@@ -89,15 +116,15 @@ public class CGPModel {
 
             if (linearOutput < 0) {
                 answer.setLinearDecision("BACKWARD");
-            } else if (linearOutput > 0) {
+            } else if (linearOutput >= 0) {
                 answer.setLinearDecision("FORWARD");
             } else {
                 answer.setLinearDecision("STOP_LINEAR");
             }
 
-            if (angularOutput < 0) {
+            if (angularOutput < -0.2) {
                 answer.setAngularDecision("LEFT");
-            } else if (linearOutput > 0) {
+            } else if (linearOutput >= 0.2) {
                 answer.setAngularDecision("RIGHT");
             } else {
                 answer.setAngularDecision("STOP_ANGULAR");
@@ -125,7 +152,7 @@ public class CGPModel {
     public static void main(String[] args) {
         //Debug test
         System.out.println("Hello");
-        CGPModel myModel = buildSingleFromFile("D:\\Coding\\FAKS\\Mentor\\TankGame\\tank-game\\python\\Cartesian GP\\first.txt");
+        CGPModel myModel = buildSingleFromFile("D:\\Coding\\FAKS\\Mentor\\TankGame\\tank-game\\python\\Cartesian_GP\\result0.txt");
 
         List<List<Integer>> myGenome = myModel.getGenome();
         System.out.println(myGenome.get(0).get(0));

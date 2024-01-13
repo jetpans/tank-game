@@ -330,7 +330,7 @@ public class Game extends PApplet {
         PApplet.main("proc.sketches.Game");
     }
 
-    static GameState getCurrentGameState(Integer tankId) {
+    public static GameState getCurrentGameState(Integer tankId) {
         Tank myTank = tanks.get(tankId);
         Tank other = tanks.get(1 - tankId);
 
