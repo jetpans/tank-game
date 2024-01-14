@@ -69,16 +69,14 @@ public class GameInstance {
                 }
                 int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
 
-                if (count < 5) {
-                    if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
-                        bullets.add(b);
-                        if (b.getOwner().getId() == 0) {
-                            bulletsShot1++;
-                        } else if (b.getOwner().getId() == 1) {
-                            bulletsShot2++;
-                        }
-                    }
 
+                if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
+                    bullets.add(b);
+                    if (b.getOwner().getId() == 0) {
+                        bulletsShot1++;
+                    } else if (b.getOwner().getId() == 1) {
+                        bulletsShot2++;
+                    }
                 }
             }
             newBullets.clear();

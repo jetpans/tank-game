@@ -38,6 +38,7 @@ public class Game extends PApplet {
     public static boolean simulationStop = false;
     public static Instant startTime;
     private static int timeLimit = 180;
+    public static int decisions;
     //1 unit is 1 second
 
     static String AbsolutePathToPlayer1Brain = null;
@@ -91,12 +92,12 @@ public class Game extends PApplet {
 
     public void draw() {
         if (!simulationStop) {
-            if (ChronoUnit.SECONDS.between(startTime, Instant.now()) > timeLimit) {
+            if (decisions > timeLimit) {
                 simulationStop = true;
                 SwingUtilities.invokeLater(() -> {
                     String finalText = "WINNER: DRAW\n";
                     finalText += "WAY OF VICTORY: TIME LIMIT\n";
-                    finalText += "TIME: " + ((float) ChronoUnit.MILLIS.between(startTime, Instant.now())) / 1000 + "s\n";
+                    finalText += "TIME: " + decisions;
                     finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                     finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
                     new TextDrawer(finalText).setVisible(true);
@@ -127,7 +128,7 @@ public class Game extends PApplet {
                         } else {
                             finalText += "WAY OF VICTORY: MURDER\n";
                         }
-                        finalText += "TIME: " + ((float) ChronoUnit.MILLIS.between(startTime, Instant.now())) / 1000 + "s\n";
+                        finalText += "TIME: " + decisions;
                         finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                         finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
                         new TextDrawer(finalText).setVisible(true);
@@ -160,6 +161,7 @@ public class Game extends PApplet {
                 newBullets.clear();
             }
 
+            decisions++;
             AiOutput action = player1.makeDecisionBasedOnGameState(getCurrentGameState(0));
             switch (action.getFireDecision()) {
                 case "FIRE":

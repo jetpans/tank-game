@@ -57,11 +57,11 @@ public class HardCodedPlayerInstance {
             lastY = (int) myTank.getPosY();
             ArrayList<Point> canGetThereSeesTarget = generateBestDestinations(myTank, otherTank);
             if (!canGetThereSeesTarget.isEmpty()) {
-                chosenDestination = canGetThereSeesTarget.get(ThreadLocalRandom.current().nextInt(0, canGetThereSeesTarget.size())).getOrigin();
+                chosenDestination = canGetThereSeesTarget.get((int) Math.floor(Math.random() * canGetThereSeesTarget.size())).getOrigin();
                 chosenAngle = null;
             } else {
                 ArrayList<Point> canGetThere = generateOkayishDestinations(myTank);
-                chosenDestination = canGetThere.get(ThreadLocalRandom.current().nextInt(0, canGetThere.size())).getOrigin();
+                chosenDestination = canGetThere.get((int) Math.floor(Math.random() * canGetThereSeesTarget.size())).getOrigin();
                 chosenAngle = null;
             }
 
@@ -88,13 +88,13 @@ public class HardCodedPlayerInstance {
 
         ArrayList<Point> canGetThereSeesTarget = generateBestDestinations(myTank, otherTank);
         if (!canGetThereSeesTarget.isEmpty()) {
-            chosenDestination = canGetThereSeesTarget.get(ThreadLocalRandom.current().nextInt(0, canGetThereSeesTarget.size())).getOrigin();
+            chosenDestination = canGetThereSeesTarget.get((int) Math.floor(Math.random() * canGetThereSeesTarget.size())).getOrigin();
             chosenAngle = null;
         } else {
             ArrayList<Point> canGetThere = generateOkayishDestinations(myTank);
 
             System.out.println(canGetThere.size());
-            chosenDestination = canGetThere.get(ThreadLocalRandom.current().nextInt(0, canGetThere.size())).getOrigin();
+            chosenDestination = canGetThere.get((int) Math.floor(Math.random() * canGetThereSeesTarget.size())).getOrigin();
             chosenAngle = null;
         }
 
