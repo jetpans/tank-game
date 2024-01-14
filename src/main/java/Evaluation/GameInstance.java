@@ -191,6 +191,7 @@ public class GameInstance {
             str = str + "TOTAL BULLETS SHOT BY PLAYER 1: " + bulletsShot1 + "\n";
             str = str + "TOTAL BULLETS SHOT BY PLAYER 2: " + bulletsShot2 + "\n";
             str = str + "WAY OF VICTORY: " + wayOfVictory + "\n";
+            str = str + "POSITION: " + String.format("(%d, %d)", Math.round(tanks.get(0).getPosX()), Math.round(tanks.get(0).getPosY()));
             return str;
 
 

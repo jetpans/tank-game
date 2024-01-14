@@ -108,7 +108,7 @@ public class CGPModel {
             Double fireOutput = results.get(2);
             Double linearOutput = results.get(0);
             Double angularOutput = results.get(1);
-            if (fireOutput > 0) {
+            if (fireOutput == 50) {
                 answer.setFireDecision("FIRE");
             } else {
                 answer.setFireDecision("");
