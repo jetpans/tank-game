@@ -162,62 +162,66 @@ public class Game extends PApplet {
             }
 
             decisions++;
-            AiOutput action = player1.makeDecisionBasedOnGameState(getCurrentGameState(0));
-            switch (action.getFireDecision()) {
-                case "FIRE":
-                    newBullets.add(tanks.get(0).fireBullet());
-                    break;
-            }
-            switch (action.getLinearDecision()) {
-                case "FORWARD":
-                    tanks.get(0).forward();
-                    break;
-                case "BACKWARD":
-                    tanks.get(0).backward();
-                    break;
-                case "STOP_LINEAR":
-                    tanks.get(0).stop();
-                    break;
-            }
-            switch (action.getAngularDecision()) {
-                case "RIGHT":
-                    tanks.get(0).right();
-                    break;
-                case "LEFT":
-                    tanks.get(0).left();
-                    break;
-                case "STOP_ANGULAR":
-                    tanks.get(0).angleStop();
-                    break;
+            if (player1 != null) {
+                AiOutput action = player1.makeDecisionBasedOnGameState(getCurrentGameState(0));
+                switch (action.getFireDecision()) {
+                    case "FIRE":
+                        newBullets.add(tanks.get(0).fireBullet());
+                        break;
+                }
+                switch (action.getLinearDecision()) {
+                    case "FORWARD":
+                        tanks.get(0).forward();
+                        break;
+                    case "BACKWARD":
+                        tanks.get(0).backward();
+                        break;
+                    case "STOP_LINEAR":
+                        tanks.get(0).stop();
+                        break;
+                }
+                switch (action.getAngularDecision()) {
+                    case "RIGHT":
+                        tanks.get(0).right();
+                        break;
+                    case "LEFT":
+                        tanks.get(0).left();
+                        break;
+                    case "STOP_ANGULAR":
+                        tanks.get(0).angleStop();
+                        break;
+                }
             }
 
-            action = player2.makeDecisionBasedOnGameState(getCurrentGameState(1));
-            switch (action.getFireDecision()) {
-                case "FIRE":
-                    newBullets.add(tanks.get(1).fireBullet());
-                    break;
-            }
-            switch (action.getLinearDecision()) {
-                case "FORWARD":
-                    tanks.get(1).forward();
-                    break;
-                case "BACKWARD":
-                    tanks.get(1).backward();
-                    break;
-                case "STOP_LINEAR":
-                    tanks.get(1).stop();
-                    break;
-            }
-            switch (action.getAngularDecision()) {
-                case "RIGHT":
-                    tanks.get(1).right();
-                    break;
-                case "LEFT":
-                    tanks.get(1).left();
-                    break;
-                case "STOP_ANGULAR":
-                    tanks.get(1).angleStop();
-                    break;
+            if (player2 != null) {
+                AiOutput action = player2.makeDecisionBasedOnGameState(getCurrentGameState(1));
+                switch (action.getFireDecision()) {
+                    case "FIRE":
+                        newBullets.add(tanks.get(1).fireBullet());
+                        break;
+                }
+                switch (action.getLinearDecision()) {
+                    case "FORWARD":
+                        tanks.get(1).forward();
+                        break;
+                    case "BACKWARD":
+                        tanks.get(1).backward();
+                        break;
+                    case "STOP_LINEAR":
+                        tanks.get(1).stop();
+                        break;
+                }
+                switch (action.getAngularDecision()) {
+                    case "RIGHT":
+                        tanks.get(1).right();
+                        break;
+                    case "LEFT":
+                        tanks.get(1).left();
+                        break;
+                    case "STOP_ANGULAR":
+                        tanks.get(1).angleStop();
+                        break;
+                }
             }
 
 

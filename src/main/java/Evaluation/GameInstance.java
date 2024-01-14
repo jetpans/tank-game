@@ -85,7 +85,7 @@ public class GameInstance {
     }
 
 
-    public String start(String firstAgent, String secondAgent) {
+    public String start(String firstAgent, String secondAgent, Integer level) {
         LevelTypes.setDimensions(dimX, dimY);
         String wallsChoice = "4";
         Integer timeLimit = 1000;
@@ -96,7 +96,7 @@ public class GameInstance {
         //starting the game simulation
         try {
             //initializing level
-            walls = LevelTypes.getWallBlueprint(Integer.parseInt(wallsChoice));
+            walls = LevelTypes.getWallBlueprint(level);
             myLevel = new Level(walls);
 
             //creating tanks
@@ -245,8 +245,17 @@ public class GameInstance {
                         in.readLine();
                     }
                 }
+                Integer levelIndex = 1;
+                try {
+                    String myLevel = in.readLine();
+                    levelIndex = Integer.parseInt(myLevel.split(" ")[1]);
+                } catch (Exception e) {
+                    System.out.println("ERRORED");
+                    e.printStackTrace();
+
+                }
                 GameInstance newGame = new GameInstance();
-                String result = newGame.start(first, second);
+                String result = newGame.start(first, second, levelIndex);
 //                if (result != null) System.out.println(result);
                 out.println(result);
             }
