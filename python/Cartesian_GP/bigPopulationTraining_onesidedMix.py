@@ -58,7 +58,8 @@ def fitness_from_result(result, player):
     MURDER_WEIGHT = 200
     SUICIDE_WEIGHT = -500
     suma = 0
-    suma = 300 - result["decisions"] * 300/1000
+    suma += 300 - result["decisions"] * 300/1000
+
     if result["winner"] == "DRAW":
         suma += DRAW_WEIGHT
         return suma
@@ -77,37 +78,36 @@ NUMBER_OF_EXTRA_NODES = 30
 NUMBER_OF_INPUT_NODES = 11
 ITERATIONS = 50000
 
-HARDCODE_MULTIPLIER = 2
+HARDCODE_MULTIPLIER = 3
 NEW_PARENT_PERCENT = 0.5
 def main():
     maxFitness = -1e7
     swapped = False
-    # population = [CGP.construct_random_genome_uniform(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(POPULATION_SIZE)]
+    population = [CGP.construct_random_genome_uniform(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(POPULATION_SIZE)]
     
-    jedinka = fetch_from_file("beatsHardcodeOnAllLevels.txt")
-    jedinka = [jedinka[0:-1], jedinka[-1]]
-    population = [copy.deepcopy(jedinka) for _ in range(POPULATION_SIZE)]
+    # jedinka = fetch_from_file("beatsHardcodeOnAllLevels.txt")
+    # jedinka = [jedinka[0:-1], jedinka[-1]]
+    # population = [copy.deepcopy(jedinka) for _ in range(POPULATION_SIZE)]
         
     for i in range(ITERATIONS* 10000):
 
         fitness = [0 for _ in range(POPULATION_SIZE)]
-        if swapped:
-            for first in range(POPULATION_SIZE-1):
-                for second in range(i+1 , POPULATION_SIZE):
-                    str1 = convert_genome_to_json(population[first])
-                    str2 = convert_genome_to_json(population[second])
-                    # print("Sending: ", str1)
-                    # print("Sending: ", str2)
-                    game_result = evaluate_game("CGP", str1, "CGP", str2, random.randint(1,5) )
-                    # print("Result:" ,game_result )
-                    
+        for first in range(POPULATION_SIZE-1):
+            for second in range(i+1 , POPULATION_SIZE):
+                str1 = convert_genome_to_json(population[first])
+                str2 = convert_genome_to_json(population[second])
+                # print("Sending: ", str1)
+                # print("Sending: ", str2)
+                game_result = evaluate_game("CGP", str1, "CGP", str2, random.randint(1,5) )
+                # print("Result:" ,game_result )
+                
 
-                    game_result = parse_result(game_result)
-                    
-                    fitness_first = fitness_from_result(game_result, "Player1")
-                    fitness_second = fitness_from_result(game_result, "Player2")
-                    fitness[first] += fitness_first
-                    fitness[second] += fitness_second
+                game_result = parse_result(game_result)
+                
+                fitness_first = fitness_from_result(game_result, "Player1")
+                fitness_second = fitness_from_result(game_result, "Player2")
+                fitness[first] += fitness_first
+                fitness[second] += fitness_second
 
         for t in range(1,6):
             for first in range(POPULATION_SIZE):
@@ -129,10 +129,6 @@ def main():
             alpha = alpha[0]
             write_to_file(alpha, f"trainAlpha.txt")
             print("Saved alpha with fitness: ", maxFitness)
-            if maxFitness > 6800 and not swapped:
-                print("SWAPPED")
-                swapped = True
-                maxFitness = -1e6
         #Make children
         parents = copy.deepcopy(population[0:int(POPULATION_SIZE * NEW_PARENT_PERCENT)])
         population = copy.deepcopy(parents)
