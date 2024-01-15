@@ -73,13 +73,13 @@ def fitness_from_result(result, player):
         return suma
         
 
-POPULATION_SIZE = 10
-NUMBER_OF_EXTRA_NODES = 30
+POPULATION_SIZE = 20
+NUMBER_OF_EXTRA_NODES = 40
 NUMBER_OF_INPUT_NODES = 11
 ITERATIONS = 50000
 
-HARDCODE_MULTIPLIER = 2
-NEW_PARENT_PERCENT = 0.5
+HARDCODE_MULTIPLIER = 1
+NEW_PARENT_PERCENT = 0.3
 def main():
     maxFitness = -1e7
     swapped = False
