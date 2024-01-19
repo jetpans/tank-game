@@ -69,16 +69,14 @@ public class GameInstance {
                 }
                 int count = (int) bullets.stream().filter(x -> x.getOwner().equals(b.getOwner())).count();
 
-                if (count < 5) {
-                    if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
-                        bullets.add(b);
-                        if (b.getOwner().getId() == 0) {
-                            bulletsShot1++;
-                        } else if (b.getOwner().getId() == 1) {
-                            bulletsShot2++;
-                        }
-                    }
 
+                if (count < 5 && b.getCurrentLife() < Bullet.MAX_LIFE) {
+                    bullets.add(b);
+                    if (b.getOwner().getId() == 0) {
+                        bulletsShot1++;
+                    } else if (b.getOwner().getId() == 1) {
+                        bulletsShot2++;
+                    }
                 }
             }
             newBullets.clear();
@@ -87,7 +85,7 @@ public class GameInstance {
     }
 
 
-    public String start(String firstAgent, String secondAgent) {
+    public String start(String firstAgent, String secondAgent, Integer level) {
         LevelTypes.setDimensions(dimX, dimY);
         String wallsChoice = "4";
         Integer timeLimit = 1000;
@@ -98,7 +96,7 @@ public class GameInstance {
         //starting the game simulation
         try {
             //initializing level
-            walls = LevelTypes.getWallBlueprint(Integer.parseInt(wallsChoice));
+            walls = LevelTypes.getWallBlueprint(level);
             myLevel = new Level(walls);
 
             //creating tanks
@@ -185,9 +183,6 @@ public class GameInstance {
 
                 //make decision results visible for next round
                 updateGame();
-                updateGame();
-                updateGame();
-                updateGame();
             }
 
 
@@ -250,8 +245,17 @@ public class GameInstance {
                         in.readLine();
                     }
                 }
+                Integer levelIndex = 1;
+                try {
+                    String myLevel = in.readLine();
+                    levelIndex = Integer.parseInt(myLevel.split(" ")[1]);
+                } catch (Exception e) {
+                    System.out.println("ERRORED");
+                    e.printStackTrace();
+
+                }
                 GameInstance newGame = new GameInstance();
-                String result = newGame.start(first, second);
+                String result = newGame.start(first, second, levelIndex);
 //                if (result != null) System.out.println(result);
                 out.println(result);
             }

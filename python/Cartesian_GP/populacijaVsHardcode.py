@@ -55,7 +55,7 @@ def fitness_from_result(result, player):
     DRAW_WEIGHT = 0
     WEIGHT_PER_BULLET = -5
     MURDER_WEIGHT = 100
-    SUICIDE_WEIGHT = -300
+    SUICIDE_WEIGHT = -1000
     
     myBullets = result["bullets_1"] if player.endswith("1") else result["bullets_2"]
     
@@ -98,8 +98,7 @@ def main():
                 tempPopulation[k][0].append(tempPopulation[k][1])
                 write_to_file(tempPopulation[k][0], f"result{k}.txt")
             print(i)
-        fitness = copy.deepcopy(fitness)
-        fitness[2] = fitness[1]
+        fitness[2] = fitness[1] * 0.8
         
         for first in range(3):
             str1 = convert_genome_to_json(population[first])
@@ -109,9 +108,9 @@ def main():
             fitness[first] += fitness_first
         
         sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
-        fitness = list(map(lambda x: x[1]/2, sorting))
+        fitness = list(map(lambda x: x[1], sorting))
         if i%100 == 0:
-            print(list(map(lambda x: x[1], sorting)))
+            print(fitness)
         newChild = CGP.reproduce_genomes2(sorting[0][0], sorting[1][0])[0]
         newChild = CGP.mutate_genome(newChild)
         

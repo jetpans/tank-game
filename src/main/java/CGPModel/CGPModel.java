@@ -122,9 +122,9 @@ public class CGPModel {
                 answer.setLinearDecision("STOP_LINEAR");
             }
 
-            if (angularOutput < -0.2) {
+            if (angularOutput < -0.5) {
                 answer.setAngularDecision("LEFT");
-            } else if (linearOutput >= 0.2) {
+            } else if (angularOutput >= 0.5) {
                 answer.setAngularDecision("RIGHT");
             } else {
                 answer.setAngularDecision("STOP_ANGULAR");

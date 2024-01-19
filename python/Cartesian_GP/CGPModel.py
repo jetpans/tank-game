@@ -8,7 +8,7 @@ import copy
 GENERATION_INDEX_PROBABILITY = 1/20
 
 #Best not to put this bigger than 1/3
-MUTATION_OF_ELEMENT_PROBABILITY = 1/12
+MUTATION_OF_ELEMENT_PROBABILITY = 1/16
 
 REPRODUCTION_PROBABILITY = 1/4
 
@@ -17,14 +17,13 @@ REPRODUCTION_PROBABILITY = 1/4
 #For In1 and In2 at index I, it is True that In1 < I && In2 < I
 
 #Inputs are denoted as negative "indices", each negative number denotes an index + + in input list
-def construct_random_genome(number_of_nodes, number_of_inputs, number_of_outputs = 3, constant_range = (0,0), ):
+def construct_random_genome_geometric(number_of_nodes, number_of_inputs, number_of_outputs = 3, constant_range = (0,0), ):
     genome_result = []
     outputs = []
     for i in range(number_of_inputs):
         genome_result.append([-(i+1), 0 , -1])    
-        
     for i in range(number_of_nodes):
-        in1 = number_of_inputs + i - random_geometric(i + number_of_inputs, GENERATION_INDEX_PROBABILITY)
+        in1 = number_of_inputs + i -  random_geometric(i + number_of_inputs, GENERATION_INDEX_PROBABILITY)
         in2 = number_of_inputs + i - random_geometric(i + number_of_inputs, GENERATION_INDEX_PROBABILITY)
         operator = random.choice(list(operators.keys()))
         genome_result.append([in1,in2,operator])
@@ -33,7 +32,21 @@ def construct_random_genome(number_of_nodes, number_of_inputs, number_of_outputs
     outputs = list(range(len(genome_result) - number_of_outputs , len(genome_result)))
     return [genome_result,outputs]
 
-
+def construct_random_genome_uniform(number_of_nodes, number_of_inputs, number_of_outputs = 3, constant_range = (0,0), ):
+    genome_result = []
+    outputs = []
+    for i in range(number_of_inputs):
+        genome_result.append([-(i+1), 0 , -1])    
+        random.randint(0, i+number_of_inputs + 1) 
+    for i in range(number_of_nodes):
+        in1 = number_of_inputs + i - random.randint(1, i+number_of_inputs) 
+        in2 = number_of_inputs + i - random.randint(1, i+number_of_inputs) 
+        operator = random.choice(list(operators.keys()))
+        genome_result.append([in1,in2,operator])
+    
+    outputs = list(random.choices(range(number_of_inputs,len(genome_result)), k = 3))
+    outputs = list(range(len(genome_result) - number_of_outputs , len(genome_result)))
+    return [genome_result,outputs]
 
 def evaluate_genome(genome, inputs):
     genome, outputs = genome
