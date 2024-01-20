@@ -15,7 +15,7 @@ level = 4
 def evaluate_game(type_of_player_1, player_1, type_of_player_2,
                   player_2):  # Returns String of game ending -- might require parsing
     str1 = f"{type_of_player_1}\n{player_1}\n"
-    str2 = f"{type_of_player_2}\n{player_2}"
+    str2 = f"{type_of_player_2}\n{player_2}\n"
 
     client_socket.send("START\n".encode('utf-8'))
     client_socket.send(str1.encode('utf-8'))
@@ -50,7 +50,6 @@ def parse_result(result):
     output["bullets_1"] = int(evals[2])
     output["bullets_2"] = int(evals[3])
     output["way_of_victory"] = evals[4]
-    output["position"] = evals[5].replace("(", "").replace(")", "").split(", ")
     return output
 
 
@@ -60,21 +59,27 @@ def fitness_from_result(result, player):
     y = int(y)
     return x * y
 
+generation_size = 50
+#zadnji mora biti 3
+nn_model = [5, 3]
+level = 1
 
 def main():
     maxFitness = 0
-    population = [NeuralNetwork(13, [5, 3], 1) for _ in range(10)]
+    population = [NeuralNetwork(13, nn_model, 1) for _ in range(generation_size)]
 
-    for i in range( 10000):
+    for i in range(10000):
 
         if i % 500 == 0:
              print(i)
-        fitness = [0 for _ in range (10)]
+        fitness = [0 for _ in range (generation_size)]
 
         for first in range(10):
             str1 = convert_genome_to_json(population[first])
             game_result = evaluate_game("NN", str1, "DUMMY", "")
+
             game_result = parse_result(game_result)
+
             fitness_first = fitness_from_result(game_result, "Player1")
             fitness[first] += fitness_first
 
@@ -83,6 +88,7 @@ def main():
 
         if i % 20 == 0:
             print(fitness)
+
         num_networks_to_keep = int(0.5 * len(sorting))
         # Extract the top 10% of neural networks
         selected_networks = [pair[0] for pair in sorting[:num_networks_to_keep]]
