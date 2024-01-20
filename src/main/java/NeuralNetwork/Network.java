@@ -1,13 +1,18 @@
 package NeuralNetwork;
+
 import AiPlayer.AiOutput;
 import AiPlayer.GameState;
+import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class Network
 {
-    ArrayList<Layer> layers;
+    ArrayList<Layer> layers = new ArrayList<>();
     int inputDimension;
     int outcomeDimension;
     Layer finalLayer;
@@ -18,46 +23,72 @@ public class Network
         try {
             brTest = new BufferedReader(new FileReader(file));
             String line = brTest.readLine();
-            String numOfLayers = brTest.readLine();
-            brTest.readLine();
+            String playerBrain = brTest.readLine();
 
-            layers = new ArrayList<>();
-            for (int i = 0; i<Integer.parseInt(numOfLayers)-1; i++) {
-                List<String> matrica = new ArrayList<>();
-                while(!(line= brTest.readLine()).equals("#####")) {
-                    matrica.add(line);
-                }
-                double[][] fakeMatrix = new double[matrica.size()][matrica.get(0).split(" ").length];
-                for (int j= 0; j< matrica.size();j++) {
-                    double[] linija = Arrays.stream(matrica.get(j).split(" "))
-                            .mapToDouble(Double::parseDouble)
-                            .toArray();
-                    for (int k= 0;k<linija.length;k++) {
-                        fakeMatrix[j][k] = linija[k];
+            Map<String,Object> result =
+                    new ObjectMapper().readValue(playerBrain, HashMap.class);
+            this.inputDimension= (int) result.get("input_dim");
+            this.outcomeDimension= (int) result.get("output_dim");
+            ArrayList<LinkedHashMap<String,Object>> layers = (ArrayList<LinkedHashMap<String, Object>>) result.get("layers");
+            for (int i=0; i<layers.size()-1;i++) {
+                int input = (int) layers.get(i).get("cols");
+                int output = (int) layers.get(i).get("rows");
+                double[][] matrica = new double[output][input];
+                for (int j=0;j<input;j++) {
+                    for (int k=0;k<output;k++) {
+                        matrica[k][j]=((ArrayList<ArrayList<Double>>)layers.get(i).get("data")).get(k).get(j);
                     }
                 }
-                RealMatrix matrix = new RealMatrix(fakeMatrix);
-                layers.add(new Layer(matrix.getColumnDimension(), matrix.getRowDimension(), matrix));
+                Layer currentLayer = new Layer(input,output,new RealMatrix(matrica));
+                this.layers.add(currentLayer);
             }
-            List<String> matrica = new ArrayList<>();
-            while(!(line= brTest.readLine()).equals("#####")) {
-                matrica.add(line);
-            }
-            double[][] fakeMatrix = new double[matrica.size()][matrica.get(0).split(" ").length];
-            for (int j= 0; j< matrica.size();j++) {
-                double[] linija = Arrays.stream(matrica.get(j).split(" "))
-                        .mapToDouble(Double::parseDouble)
-                        .toArray();
-                for (int k= 0;k<linija.length;k++) {
-                    fakeMatrix[j][k] = linija[k];
+            int input = (int) layers.get(layers.size()-1).get("cols");
+            int output = (int) layers.get(layers.size()-1).get("rows");
+            double[][] matrica = new double[output][input];
+            for (int j=0;j<input;j++) {
+                for (int k=0;k<output;k++) {
+                    matrica[k][j]=((ArrayList<ArrayList<Double>>)layers.get(layers.size()-1).get("data")).get(k).get(j);
                 }
             }
-            RealMatrix matrix = new RealMatrix(fakeMatrix);
-            finalLayer = new Layer(matrix.getColumnDimension(), matrix.getRowDimension(), matrix);
-            outcomeDimension = finalLayer.getNumberOfNeurons();
-            inputDimension = layers.get(0).getInputDimension();
+            this.finalLayer = new Layer(input,output,new RealMatrix(matrica));
+
+
         } catch (IOException e) {}
 
+    }
+
+    public Network(String playerBrain) {
+        try {
+            Map<String,Object> result =
+                    new ObjectMapper().readValue(playerBrain, HashMap.class);
+            this.inputDimension= (int) result.get("input_dim");
+            this.outcomeDimension= (int) result.get("output_dim");
+            ArrayList<LinkedHashMap<String,Object>> layers = (ArrayList<LinkedHashMap<String, Object>>) result.get("layers");
+            for (int i=0; i<layers.size()-1;i++) {
+                int input = (int) layers.get(i).get("cols");
+                int output = (int) layers.get(i).get("rows");
+                double[][] matrica = new double[output][input];
+                for (int j=0;j<input;j++) {
+                    for (int k=0;k<output;k++) {
+                        matrica[k][j]=((ArrayList<ArrayList<Double>>)layers.get(i).get("data")).get(k).get(j);
+                    }
+                }
+                Layer currentLayer = new Layer(input,output,new RealMatrix(matrica));
+                this.layers.add(currentLayer);
+            }
+            int input = (int) layers.get(layers.size()-1).get("cols");
+            int output = (int) layers.get(layers.size()-1).get("rows");
+            double[][] matrica = new double[output][input];
+            for (int j=0;j<input;j++) {
+                for (int k=0;k<output;k++) {
+                    matrica[k][j]=((ArrayList<ArrayList<Double>>)layers.get(layers.size()-1).get("data")).get(k).get(j);
+                }
+            }
+            this.finalLayer = new Layer(input,output,new RealMatrix(matrica));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ArrayList<Double> predict(ArrayList<Double> x)
@@ -191,11 +222,11 @@ public class Network
         }
 
         if (izlaz.get(2)<-0.2) {
-            odluka.setAngularDecision("FORWARD");
+            odluka.setLinearDecision("FORWARD");
         } else if (izlaz.get(2)>0.2) {
-            odluka.setAngularDecision("BACKWARD");
+            odluka.setLinearDecision("BACKWARD");
         } else {
-            odluka.setAngularDecision("STOP_LINEAR");
+            odluka.setLinearDecision("STOP_LINEAR");
         }
 
         return odluka;

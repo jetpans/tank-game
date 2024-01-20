@@ -9,16 +9,15 @@ import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Coordinate;
 import proc.sketches.*;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 
 import static proc.sketches.Game.*;
-import static proc.sketches.GameNoVisuals.calculateDistance;
 
 public class GameInstance {
     public int dimX = 1000;
@@ -191,6 +190,7 @@ public class GameInstance {
             str = str + "TOTAL BULLETS SHOT BY PLAYER 1: " + bulletsShot1 + "\n";
             str = str + "TOTAL BULLETS SHOT BY PLAYER 2: " + bulletsShot2 + "\n";
             str = str + "WAY OF VICTORY: " + wayOfVictory + "\n";
+            str = str + "POSITION: " + String.format("(%d, %d)", Math.round(tanks.get(0).getPosX()), Math.round(tanks.get(0).getPosY()));
             return str;
 
 
@@ -228,7 +228,7 @@ public class GameInstance {
 //                        System.out.println(first);
 
                     } else if (first.equals("NN")) {
-                        // ? TODO
+                        first += "\n" + in.readLine();
                     } else if (first.equals("HCINSTANCE")) {
                         in.readLine();
                     }
@@ -240,7 +240,7 @@ public class GameInstance {
 //                        System.out.println(second);
 
                     } else if (second.equals("NN")) {
-                        // ? TODO
+                        second += "\n" + in.readLine();
                     } else if (second.equals("HCINSTANCE")) {
                         in.readLine();
                     }

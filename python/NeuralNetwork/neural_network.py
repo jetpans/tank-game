@@ -1,7 +1,15 @@
 from layer import Layer
+import json
+import random
+import copy
 
 
 class NeuralNetwork:
+    def toJSON(self):
+        return (json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)).replace("\n", "")
+    def genomeToString(genome):
+        return json.dumps(genome)
     def __init__(self, input_dim, layer_outputs, random_std):
         output_dim = layer_outputs[len(layer_outputs) - 1]
         self.input_dim = input_dim
@@ -38,6 +46,20 @@ class NeuralNetwork:
 
     @classmethod
     def from_layer_list(cls, layer_list):
-        network = cls(len(layer_list), [1], 0)
+        network = cls(layer_list[0].cols-1, [element.rows for element in layer_list], 0)
         network.layers = layer_list
         return network
+    @classmethod
+    def crossover(cls,parent1, parent2):
+        crossover_point = random.randint(0, len(parent1.layers))
+
+        child_layers = []
+
+        for i in range(crossover_point):
+            child_layers.append(copy.deepcopy(parent1.layers[i]))
+
+        for i in range(crossover_point, len(parent2.layers)):
+            child_layers.append(copy.deepcopy(parent2.layers[i]))
+
+        child = NeuralNetwork.from_layer_list(child_layers)
+        return child

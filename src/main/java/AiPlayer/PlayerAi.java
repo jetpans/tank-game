@@ -73,7 +73,8 @@ public class PlayerAi {
         } else if ("HARDCODED MISKO".equals(firstLine)) {
             //TODO fix this
         } else if ("NN".equals(firstLine)) {
-            //TODO parse NN from String somehow.
+            playerAi.type = "NN";
+            playerAi.neuralNetwork = new Network(playerBrain);
         } else if (firstLine.equals("CGP")) {
             playerAi.type = "CGP";
             playerAi.modelCGP = CGPModel.buildSingleFromString(playerBrain);
