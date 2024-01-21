@@ -97,6 +97,9 @@ public class Game extends PApplet {
                     finalText += "TIME: " + decisions+"\n";
                     finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                     finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
+                    finalText += "distance: "+getCurrentGameState(0).getDistanceToEnemy()+"\n";
+                    finalText += "aim1: "+(getCurrentGameState(0).getAngleAtEnemy())+"\n";
+                    finalText += "aim2: "+(getCurrentGameState(1).getAngleAtEnemy())+"\n";
                     new TextDrawer(finalText).setVisible(true);
                 });
             }
@@ -128,6 +131,9 @@ public class Game extends PApplet {
                         finalText += "TIME: " + decisions+"\n";
                         finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                         finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
+                        finalText += "distance: "+getCurrentGameState(0).getDistanceToEnemy()+"\n";
+                        finalText += "aim1: "+(getCurrentGameState(0).getAngleAtEnemy())+"\n";
+                        finalText += "aim2: "+(getCurrentGameState(1).getAngleAtEnemy())+"\n";
                         new TextDrawer(finalText).setVisible(true);
                     });
                 }
@@ -401,7 +407,7 @@ public class Game extends PApplet {
 
         GameState state = new GameState();
         //direct sight
-        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
+        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY())-myTank.getAngle());
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
         state.setDistanceToEnemy(calculateDistance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 

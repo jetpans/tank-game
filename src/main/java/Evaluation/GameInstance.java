@@ -192,6 +192,10 @@ public class GameInstance {
             str = str + "WAY OF VICTORY: " + wayOfVictory + "\n";
             str = str + "POSITION: " + String.format("(%d, %d)", Math.round(tanks.get(0).getPosX()), Math.round(tanks.get(0).getPosY())) + "\n";
             str = str + "DISTANCE: " + getCurrentGameStateInstance(0).getDistanceToEnemy() + "\n";
+            str = str + "ANGLE TO ENEMY 1: " + getCurrentGameStateInstance(0).getAngleAtEnemy() + "\n";
+            str = str + "ANGLE TO ENEMY 2: " + getCurrentGameStateInstance(1).getAngleAtEnemy() + "\n";
+            str = str + "SEE 1: " + getCurrentGameStateInstance(0).getCanSeeEnemy() + "\n";
+            str = str + "SEE 2: " + getCurrentGameStateInstance(1).getCanSeeEnemy() + "\n";
             return str;
 
 
@@ -309,7 +313,7 @@ public class GameInstance {
 
         GameState state = new GameState();
         //direct sight
-        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
+        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY())-myTank.getAngle());
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
         state.setDistanceToEnemy(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 
