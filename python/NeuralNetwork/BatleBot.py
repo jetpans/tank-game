@@ -157,8 +157,8 @@ percentage_of_group_to_keep = 0.5
 #pls make it dividable with group_size
 generation_size = 100
 #zadnji mora biti 3
-nn_model = [3]
-level = 2
+nn_model = [7,3]
+level = 3
 max_generations = 1000
 
 def main():
@@ -179,7 +179,7 @@ def main():
 
                 str1 = convert_genome_to_json(small_population[pair[0]])
                 str2 = convert_genome_to_json(small_population[pair[1]])
-                game_result = evaluate_game("NN", str1, "NN", str1)
+                game_result = evaluate_game("NN", str1, "NN", str2)
 
                 game_result = parse_result(game_result)
                 if i<200:
