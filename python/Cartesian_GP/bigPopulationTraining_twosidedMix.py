@@ -170,6 +170,7 @@ def main():
         if i-last_save > 300:
             CGP.MUTATION_OF_ELEMENT_PROBABILITY *=1.5
             print("Making mutation probability harder: ",CGP.MUTATION_OF_ELEMENT_PROBABILITY)
+            last_save = i
             
         parents = copy.deepcopy(population[0:int(POPULATION_SIZE * NEW_PARENT_PERCENT)])
         population = copy.deepcopy(parents)
