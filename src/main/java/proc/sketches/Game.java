@@ -407,7 +407,18 @@ public class Game extends PApplet {
 
         GameState state = new GameState();
         //direct sight
-        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) - myTank.getAngle());
+        Double angle = calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) - myTank.getAngle();
+        if (Math.abs(angle)>Math.PI) {
+            Double diff = (2*Math.PI-Math.abs(angle));
+            if ( angle<0) {
+                angle=diff;
+            } else
+            {
+                angle=-diff;
+            }
+        }
+        //direct sight
+        state.setAngleAtEnemy(angle);
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
         state.setDistanceToEnemy(calculateDistance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 

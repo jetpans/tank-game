@@ -150,4 +150,6 @@ public class MyApp {
         // Run the Game class with the specified arguments
         Game.main(arguments);
     }
+
 }
+
