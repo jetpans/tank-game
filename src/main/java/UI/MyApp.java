@@ -74,7 +74,7 @@ public class MyApp {
                             dtde.acceptDrop(DnDConstants.ACTION_COPY);
                             @SuppressWarnings("unchecked")
                             List<File> files = (List<File>) tr.getTransferData(flavor);
-                            myFiles.addAll(files);
+                            myFiles.add(0, files.get(0));
                             first.setText(files.get(0).getName());
                             if (myFiles.size() == 2) {
                                 handleDroppedFiles(myFiles);
@@ -103,7 +103,7 @@ public class MyApp {
                             dtde.acceptDrop(DnDConstants.ACTION_COPY);
                             @SuppressWarnings("unchecked")
                             List<File> files = (List<File>) tr.getTransferData(flavor);
-                            myFiles.addAll(files);
+                            myFiles.add(files.get(0));
                             second.setText(files.get(0).getName());
                             if (myFiles.size() == 2) {
                                 handleDroppedFiles(myFiles);
