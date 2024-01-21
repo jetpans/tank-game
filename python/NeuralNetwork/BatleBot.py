@@ -151,15 +151,15 @@ def get_random_index_from_array(arr):
         if rand < stat:
             return i
 
-group_size = 5
+group_size = 6
 #biger groups require smaller percantages
 percentage_of_group_to_keep = 0.5
 #pls make it dividable with group_size
-generation_size = 100
+generation_size = 102
 #zadnji mora biti 3
 nn_model = [7,3]
-level = 3
-max_generations = 1000
+level = 1
+max_generations = 10000
 
 def main():
     maxFitness = 0
@@ -182,23 +182,29 @@ def main():
                 game_result = evaluate_game("NN", str1, "NN", str2)
 
                 game_result = parse_result(game_result)
-                if i<200:
+                if i<=1000:
                     fitness_pair = fitness_distance(game_result)
                 else:
                     fitness_pair = fitness_from_result(game_result)
                 fitness[pair[0]] += fitness_pair[0]
                 fitness[pair[1]] += fitness_pair[1]
 
+
+
             sorting = list(reversed(sorted(zip(small_population, fitness), key=lambda x: x[1])))
             fitness = list(map(lambda x: x[1], sorting))
-            if i % 20 == 0:
+            if i % 50 == 0:
                 print(i, ": ", datetime.datetime.now(),"  ",fitness," ",[new[0] for new in sorting])
             if i % 50 == 0:
                 prvi = "progress/generation"+str(i)+"/group"+str(j)+"/prvi.txt"
                 drugi = "progress/generation"+str(i)+ "/group"+str(j)+ "/drugi.txt"
+                treci = "progress/generation" + str(i) + "/group" + str(j) + "/treci.txt"
+                cetvrti = "progress/generation" + str(i) + "/group" + str(j) + "/cetvrti.txt"
                 zadnji = "progress/generation"+str(i)+ "/group"+str(j)+ "/zadnji.txt"
                 write_to_path_file_nn(sorting[0][0], prvi)
                 write_to_path_file_nn(sorting[1][0], drugi)
+                write_to_path_file_nn(sorting[2][0], treci)
+                write_to_path_file_nn(sorting[3][0], cetvrti)
                 write_to_path_file_nn(sorting[-1][0], zadnji)
 
 
