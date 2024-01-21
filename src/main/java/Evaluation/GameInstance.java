@@ -313,7 +313,7 @@ public class GameInstance {
 
         GameState state = new GameState();
         //direct sight
-        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY())-myTank.getAngle());
+        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) - myTank.getAngle());
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
         state.setDistanceToEnemy(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 
@@ -341,7 +341,7 @@ public class GameInstance {
         state.setDistanceRight(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
         state.setSeesRight(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
-        Double radius = (double) Tank.TANK_SIZE * 1.75;
+        Double radius = (double) Tank.TANK_SIZE * Tank.TANK_VISION_MULTIPLIER;
         ArrayList<Bullet> tempBullets = new ArrayList<>(bullets);
         for (Bullet bullet : tempBullets) {
             if (calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= radius) {

@@ -8,8 +8,8 @@ public class Bullet {
     public transient static final int MAX_LIFE = 300;
     public transient static final int GRACE_PERIOD = 30;
     private transient int currentLife = 0;
-    public transient static float VELOCITY = 10;
-    public transient static float SIZE = 10;
+    public transient static float VELOCITY = 5;
+    public transient static float SIZE = 8;
 
 
     private transient float lastX;
@@ -63,8 +63,8 @@ public class Bullet {
         }
         deltaX = velX * timeDelta;
         deltaY = velY * timeDelta;
-        this.lastX=this.posX;
-        this.lastY=this.posY;
+        this.lastX = this.posX;
+        this.lastY = this.posY;
         this.posX += deltaX;
         this.posY += deltaY;
     }

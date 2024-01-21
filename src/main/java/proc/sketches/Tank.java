@@ -21,11 +21,12 @@ public class Tank extends PApplet {
     private float velocity;
 
     private float angularVelocity;
-    public transient static float DEFAULT_LINEAR_VELOCITY = 4;
+    public transient static float DEFAULT_LINEAR_VELOCITY = 5;
     public transient static float DEFAULT_ANGULAR_VELOCITY = 0.05f;
-    public transient static float BARREL_SIZE = 105;
-    public transient static float TANK_SIZE = 85;
-    public transient static int BULLET_TIMEOUT = 12;
+    public transient static float BARREL_SIZE = 50;
+    public transient static float TANK_SIZE = 60;
+    public transient static float TANK_VISION_MULTIPLIER = 3;
+    public transient static int BULLET_TIMEOUT = 20;
     public transient int currentBulletTimeout = 0;
     public transient final float SPAWN_LOCATION_X;
     public transient final float SPAWN_LOCATION_Y;

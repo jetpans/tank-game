@@ -109,7 +109,7 @@ def main():
         
         sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
         fitness = list(map(lambda x: x[1], sorting))
-        if i%100 == 0:
+        if i%50 == 0:
             print(fitness)
         newChild = CGP.reproduce_genomes2(sorting[0][0], sorting[1][0])[0]
         newChild = CGP.mutate_genome(newChild)

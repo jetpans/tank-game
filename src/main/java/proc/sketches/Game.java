@@ -94,12 +94,12 @@ public class Game extends PApplet {
                 SwingUtilities.invokeLater(() -> {
                     String finalText = "WINNER: DRAW\n";
                     finalText += "WAY OF VICTORY: TIME LIMIT\n";
-                    finalText += "TIME: " + decisions+"\n";
+                    finalText += "TIME: " + decisions + "\n";
                     finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                     finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
-                    finalText += "distance: "+getCurrentGameState(0).getDistanceToEnemy()+"\n";
-                    finalText += "aim1: "+(getCurrentGameState(0).getAngleAtEnemy())+"\n";
-                    finalText += "aim2: "+(getCurrentGameState(1).getAngleAtEnemy())+"\n";
+                    finalText += "distance: " + getCurrentGameState(0).getDistanceToEnemy() + "\n";
+                    finalText += "aim1: " + (getCurrentGameState(0).getAngleAtEnemy()) + "\n";
+                    finalText += "aim2: " + (getCurrentGameState(1).getAngleAtEnemy()) + "\n";
                     new TextDrawer(finalText).setVisible(true);
                 });
             }
@@ -128,12 +128,12 @@ public class Game extends PApplet {
                         } else {
                             finalText += "WAY OF VICTORY: MURDER\n";
                         }
-                        finalText += "TIME: " + decisions+"\n";
+                        finalText += "TIME: " + decisions + "\n";
                         finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                         finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
-                        finalText += "distance: "+getCurrentGameState(0).getDistanceToEnemy()+"\n";
-                        finalText += "aim1: "+(getCurrentGameState(0).getAngleAtEnemy())+"\n";
-                        finalText += "aim2: "+(getCurrentGameState(1).getAngleAtEnemy())+"\n";
+                        finalText += "distance: " + getCurrentGameState(0).getDistanceToEnemy() + "\n";
+                        finalText += "aim1: " + (getCurrentGameState(0).getAngleAtEnemy()) + "\n";
+                        finalText += "aim2: " + (getCurrentGameState(1).getAngleAtEnemy()) + "\n";
                         new TextDrawer(finalText).setVisible(true);
                     });
                 }
@@ -407,7 +407,7 @@ public class Game extends PApplet {
 
         GameState state = new GameState();
         //direct sight
-        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY())-myTank.getAngle());
+        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) - myTank.getAngle());
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
         state.setDistanceToEnemy(calculateDistance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 
@@ -435,7 +435,7 @@ public class Game extends PApplet {
         state.setDistanceRight(calculateDistance(myTank.getPosX(), myTank.getPosY(), closest.getX(), closest.getY()));
         state.setSeesRight(aCanSeeB(closest.getX(), closest.getY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
 
-        Double radius = (double) Tank.TANK_SIZE * 1.75;
+        Double radius = (double) Tank.TANK_SIZE * Tank.TANK_VISION_MULTIPLIER;
         ArrayList<Bullet> tempBullets = new ArrayList<>(bullets);
         for (Bullet bullet : tempBullets) {
             if (calculateDistance(myTank.getPosX(), myTank.getPosY(), bullet.getPosX(), bullet.getPosY()) <= radius) {

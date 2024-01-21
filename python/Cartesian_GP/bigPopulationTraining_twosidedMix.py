@@ -134,8 +134,14 @@ def main():
         sorting = list(reversed(sorted(zip(population,fitness), key = lambda x: x[1])))
         fitness = list(map(lambda x: x[1], sorting))
         population = list(map(lambda x: x[0], sorting))
-        if i%100 == 0:
+        if i%50 == 0:
             print("Index: ", i)
+            alpha = copy.deepcopy(population[0])
+            alpha[0].append(alpha[1])
+            alpha = alpha[0]
+            write_to_file(alpha, f"otherAlpha.txt")
+            print("saved %100 alpha with fitness: ", maxFitness)
+                 
         if fitness[0] >= maxFitness:
             maxFitness = fitness[0]
             alpha = copy.deepcopy(population[0])
