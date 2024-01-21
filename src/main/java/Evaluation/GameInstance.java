@@ -236,6 +236,8 @@ public class GameInstance {
                         first += "\n" + in.readLine();
                     } else if (first.equals("HCINSTANCE")) {
                         in.readLine();
+                    } else {
+                        in.readLine();
                     }
                 }
                 String second = in.readLine();
@@ -247,6 +249,8 @@ public class GameInstance {
                     } else if (second.equals("NN")) {
                         second += "\n" + in.readLine();
                     } else if (second.equals("HCINSTANCE")) {
+                        in.readLine();
+                    } else {
                         in.readLine();
                     }
                 }
@@ -312,8 +316,19 @@ public class GameInstance {
         Tank other = tanks.get(1 - tankId);
 
         GameState state = new GameState();
+
+        Double angle = calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) - myTank.getAngle();
+        if (Math.abs(angle)>Math.PI) {
+            Double diff = (2*Math.PI-Math.abs(angle));
+            if ( angle<0) {
+                angle=diff;
+            } else
+            {
+                angle=-diff;
+            }
+        }
         //direct sight
-        state.setAngleAtEnemy(calculateAngleFromXAxis(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) - myTank.getAngle());
+        state.setAngleAtEnemy(angle);
         state.setCanSeeEnemy(aCanSeeB(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()) ? 1D : -1D);
         state.setDistanceToEnemy(calculateDistanceInstance(myTank.getPosX(), myTank.getPosY(), other.getPosX(), other.getPosY()));
 
