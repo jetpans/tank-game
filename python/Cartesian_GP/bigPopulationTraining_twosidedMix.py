@@ -73,18 +73,20 @@ def fitness_from_result(result, player):
         return suma
         
 
-POPULATION_SIZE = 10
+POPULATION_SIZE = 12
 NUMBER_OF_EXTRA_NODES = 30
 NUMBER_OF_INPUT_NODES = 11
 ITERATIONS = 50000
 
+global HARDCODE_MULTIPLIER
 HARDCODE_MULTIPLIER = 2
 NEW_PARENT_PERCENT = 0.5
 def main():
+    global HARDCODE_MULTIPLIER
     maxFitness = -1e7
     swapped = False
     population = [CGP.construct_random_genome_uniform(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(POPULATION_SIZE)]
-    
+    last_save = 0
     # jedinka = fetch_from_file("beatsHardcodeOnAllLevels.txt")
     # jedinka = [jedinka[0:-1], jedinka[-1]]
     # population = [copy.deepcopy(jedinka) for _ in range(POPULATION_SIZE)]
@@ -149,7 +151,26 @@ def main():
             alpha = alpha[0]
             write_to_file(alpha, f"trainAlpha.txt")
             print("Saved alpha with fitness: ", maxFitness)
+            last_save = i
+            
+        
+        if maxFitness >= 13000:
+            HARDCODE_MULTIPLIER = 0.5
+
+        if maxFitness >= 13000:
+            alpha = copy.deepcopy(population[0])
+            alpha[0].append(alpha[1])
+            alpha = alpha[0]
+            write_to_file(alpha, f"peakedAlpha.txt")
+            print("Saved peak alpha with fitness: ", maxFitness)
+            maxFitness = -1e7 
+            
+                       
         #Make children
+        if i-last_save > 300:
+            CGP.MUTATION_OF_ELEMENT_PROBABILITY *=1.5
+            print("Making mutation probability harder: ",CGP.MUTATION_OF_ELEMENT_PROBABILITY)
+            
         parents = copy.deepcopy(population[0:int(POPULATION_SIZE * NEW_PARENT_PERCENT)])
         population = copy.deepcopy(parents)
         

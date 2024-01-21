@@ -84,7 +84,6 @@ def main():
     maxFitness = -1e7
     swapped = False
     population = [CGP.construct_random_genome_uniform(NUMBER_OF_EXTRA_NODES , NUMBER_OF_INPUT_NODES) for _ in range(POPULATION_SIZE)]
-    
     # jedinka = fetch_from_file("beatsHardcodeOnAllLevels.txt")
     # jedinka = [jedinka[0:-1], jedinka[-1]]
     # population = [copy.deepcopy(jedinka) for _ in range(POPULATION_SIZE)]
@@ -143,6 +142,8 @@ def main():
             alpha = alpha[0]
             write_to_file(alpha, f"trainAlpha.txt")
             print("Saved alpha with fitness: ", maxFitness)
+            last_save = i
+
         #Make children
         parents = copy.deepcopy(population[0:int(POPULATION_SIZE * NEW_PARENT_PERCENT)])
         population = copy.deepcopy(parents)
