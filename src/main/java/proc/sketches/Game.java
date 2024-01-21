@@ -15,11 +15,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
-
-import static java.lang.Thread.sleep;
 
 public class Game extends PApplet {
     public static PlayerAi player1;
@@ -87,7 +84,7 @@ public class Game extends PApplet {
         int[] redColor = {160, 20, 10};
         int[] blueColor = {5, 5, 120};
         tanks.add(new Tank(dimX / 3, dimY / 3, 0, redColor, 0));
-        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI / 2, blueColor, 1));
+        tanks.add(new Tank(dimX * 2 / 3, dimY * 2 / 3, -(float) Math.PI, blueColor, 1));
     }
 
     public void draw() {
@@ -97,7 +94,7 @@ public class Game extends PApplet {
                 SwingUtilities.invokeLater(() -> {
                     String finalText = "WINNER: DRAW\n";
                     finalText += "WAY OF VICTORY: TIME LIMIT\n";
-                    finalText += "TIME: " + decisions;
+                    finalText += "TIME: " + decisions+"\n";
                     finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                     finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
                     new TextDrawer(finalText).setVisible(true);
@@ -128,7 +125,7 @@ public class Game extends PApplet {
                         } else {
                             finalText += "WAY OF VICTORY: MURDER\n";
                         }
-                        finalText += "TIME: " + decisions;
+                        finalText += "TIME: " + decisions+"\n";
                         finalText += "TOTAL BULLETS SHOT BY P1: " + totalBullet1 + "\n";
                         finalText += "TOTAL BULLETS SHOT BY P2: " + totalBullet2 + "\n";
                         new TextDrawer(finalText).setVisible(true);

@@ -84,7 +84,7 @@ def main():
         if i % 20 == 0:
             print(fitness)
         num_networks_to_keep = int(0.5 * len(sorting))
-        # Extract the top 10% of neural networks
+        # Extract the top 50% of neural networks
         selected_networks = [pair[0] for pair in sorting[:num_networks_to_keep]]
         while (len(selected_networks)<10):
             newChild = NeuralNetwork.crossover(sorting[0][0], sorting[1][0])

@@ -44,13 +44,16 @@ class NeuralNetwork:
                 print("VVVVVVVVVV")
             self.layers[i].print()
 
+
     @classmethod
     def from_layer_list(cls, layer_list):
-        network = cls(layer_list[0].cols-1, [element.rows for element in layer_list], 0)
+        network = cls(layer_list[0].cols - 1, [element.rows for element in layer_list], 0)
         network.layers = layer_list
         return network
+
+
     @classmethod
-    def crossover(cls,parent1, parent2):
+    def crossoverSplitByLayer(cls, parent1, parent2):
         crossover_point = random.randint(0, len(parent1.layers))
 
         child_layers = []
@@ -62,4 +65,16 @@ class NeuralNetwork:
             child_layers.append(copy.deepcopy(parent2.layers[i]))
 
         child = NeuralNetwork.from_layer_list(child_layers)
+        return child
+
+
+    @classmethod
+    def crossover(cls, parent1, parent2):
+
+        child = copy.deepcopy(parent1)
+        for i in range(len(child.layers)):
+            for j in range(len(child.layers[i].data)):
+                for k in range(len(child.layers[i].data[j])):
+                    child.layers[i].data[j][k] += parent2.layers[i].data[j][k]
+                    child.layers[i].data[j][k] /= 2
         return child
