@@ -8,7 +8,7 @@ public class Bullet {
     public transient static final int MAX_LIFE = 300;
     public transient static final int GRACE_PERIOD = 30;
     private transient int currentLife = 0;
-    public transient static float VELOCITY = 5;
+    public transient static float VELOCITY = 12;
     public transient static float SIZE = 8;
 
 

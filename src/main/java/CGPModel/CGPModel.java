@@ -114,9 +114,9 @@ public class CGPModel {
                 answer.setFireDecision("");
             }
 
-            if (linearOutput < 0) {
+            if (linearOutput < -0.25) {
                 answer.setLinearDecision("BACKWARD");
-            } else if (linearOutput >= 0) {
+            } else if (linearOutput >= 0.25) {
                 answer.setLinearDecision("FORWARD");
             } else {
                 answer.setLinearDecision("STOP_LINEAR");
