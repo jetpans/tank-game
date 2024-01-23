@@ -2,7 +2,7 @@ package CGPModel;
 
 import AiPlayer.AiOutput;
 import AiPlayer.GameState;
-import javafx.scene.shape.Path;
+//import javafx.scene.shape.Path;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import javafx.util.Pair;
+//import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
