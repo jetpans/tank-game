@@ -1,5 +1,4 @@
 from operators import operators
-import numpy
 import random
 from util import random_geometric, write_to_file, fetch_from_file
 import json
