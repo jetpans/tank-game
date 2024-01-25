@@ -1,5 +1,9 @@
 plugins {
     id 'java'
+    id 'application'
+}
+application {
+    mainClassName = 'UI.MyApp'
 }
 
 group 'org.mavriksc'
@@ -28,5 +32,9 @@ jar {
     manifest {
         attributes 'Main-Class': 'UI.MyApp'
     }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    baseName 'runGame'
+    archiveName = "${jar.baseName}.${jar.extension}"
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

@@ -1,3 +1,16 @@
+# GAME with UI
+1. Locate runGame.jar in root directory of project
+2. Start the game with java -jar runGame.jar (in case java is not setup in PATH, you can use <ApsolutePathToJava.exe> -jar runGame.jar)
+3. UI appears 
+4. Enter the level that you want to play (1-5)
+5. Drag and drop ai players txt file,or hardcoded bot txt files in player1 and player2 positions
+6. If you want to play, you should drag and drop player.txt
+7. Controls for manual play are wasd+q and ^<v>+enter
+8. All player files can be found in generated_jedinke folder
+
+9. To generate a new runable version of game(exp. with changed game settings), you can use gradle build command. Your runGame.jar file will be in build/libs folder inside root directory 
+
+
 # GAME
 expected args when starting:
 1. --LevelChoice >> int from 1 to 5, decides the level on which the game will be played (1-easy,5-hard)
