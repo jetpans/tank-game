@@ -84,11 +84,75 @@ def fitness_from_result(result):
 
     return fitness_scores
 
+def fitness_simple(result):
+    winner = result["winner"]
+    decisions = result["decisions"]
+    bullets_1 = result["bullets_1"]
+    bullets_2 = result["bullets_2"]
+    way_of_victory = result["way_of_victory"]
+
+    fitness_scores = [0, 0]
+
+    if winner == "Player1":
+        fitness_scores[0] += 10
+        fitness_scores[1] -= 50
+        if way_of_victory == "MURDER":
+            fitness_scores[0] += (30 - bullets_1*0.5)
+        elif way_of_victory == "SUICIDE":
+            fitness_scores[1] -= (15 + bullets_2/30)
+    elif winner == "Player2":
+        fitness_scores[1] += 10
+        fitness_scores[0] -= 50
+        if way_of_victory == "MURDER":
+            fitness_scores[1] += (30 - bullets_2*0.5)
+        elif way_of_victory == "SUICIDE":
+            fitness_scores[0] -= (15 + bullets_1/30)
+    else:
+        fitness_scores[0] -= 20
+        fitness_scores[1] -= 20
+        if bullets_1 > 0:
+            fitness_scores[0] += 0.05
+        if bullets_2 > 0:
+            fitness_scores[1] += 0.05
+        if bullets_1 > bullets_2:
+            fitness_scores[0] += 0.1
+        if bullets_2 > bullets_1:
+            fitness_scores[1] += 0.1
+
+    return fitness_scores
+
 
 def fitness_distance(result):
     distance = result["distance"]
     return [1/distance, 1/distance]
 
+def fitness_no_shooting(result):
+    winner = result["winner"]
+    decisions = result["decisions"]
+    bullets_1 = result["bullets_1"]
+    bullets_2 = result["bullets_2"]
+    way_of_victory = result["way_of_victory"]
+    distance = result["distance"]
+
+    fitness_scores = [0, 0]
+
+    # Nagrade za približavanje
+    fitness_scores[0] += 1/distance
+    fitness_scores[1] += 1/distance
+
+    # Kazne za pucanje
+    fitness_scores[0] -= 0.5 * bullets_1
+    fitness_scores[1] -= 0.5 * bullets_2
+
+    fitness_scores[0] += 1/decisions
+    fitness_scores[1] += 1/decisions
+
+    # Dodatne kazne ili nagrade prema drugim uvjetima igre
+    if way_of_victory == "MURDER" or way_of_victory == "SUICIDE":
+        fitness_scores[0] -= 2
+        fitness_scores[1] -= 2
+
+    return fitness_scores
 
 def generate_groups(x, y):
     # Check if x is divisible by y
@@ -151,14 +215,14 @@ def get_random_index_from_array(arr):
         if rand < stat:
             return i
 
-group_size = 6
+group_size = 5
 #biger groups require smaller percantages
 percentage_of_group_to_keep = 0.5
 #pls make it dividable with group_size
-generation_size = 102
+generation_size = 50
 #zadnji mora biti 3
-nn_model = [7,3]
-level = 1
+nn_model = [7,7,3]
+level = 2
 max_generations = 10000
 
 def main():
@@ -182,10 +246,11 @@ def main():
                 game_result = evaluate_game("NN", str1, "NN", str2)
 
                 game_result = parse_result(game_result)
-                if i<=1000:
-                    fitness_pair = fitness_distance(game_result)
-                else:
-                    fitness_pair = fitness_from_result(game_result)
+                # if i<=1000:
+                #     fitness_pair = fitness_distance(game_result)
+                # else:
+                #     fitness_pair = fitness_from_result(game_result)
+                fitness_pair = fitness_simple(game_result)
                 fitness[pair[0]] += fitness_pair[0]
                 fitness[pair[1]] += fitness_pair[1]
 
@@ -193,9 +258,10 @@ def main():
 
             sorting = list(reversed(sorted(zip(small_population, fitness), key=lambda x: x[1])))
             fitness = list(map(lambda x: x[1], sorting))
+            # if i % 50 == 0:
+            #     print(i, ": ", datetime.datetime.now(),"  ",fitness," ",[new[0] for new in sorting])
             if i % 50 == 0:
-                print(i, ": ", datetime.datetime.now(),"  ",fitness," ",[new[0] for new in sorting])
-            if i % 50 == 0:
+                print(i, ": ", datetime.datetime.now(),"  ",fitness)
                 prvi = "progress/generation"+str(i)+"/group"+str(j)+"/prvi.txt"
                 drugi = "progress/generation"+str(i)+ "/group"+str(j)+ "/drugi.txt"
                 treci = "progress/generation" + str(i) + "/group" + str(j) + "/treci.txt"
